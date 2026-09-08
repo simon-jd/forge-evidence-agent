@@ -18,6 +18,7 @@
 | PostgreSQL / rootless Docker / 公共客户端 / 独立审阅回归完整组 | 33 passed，0 skipped | [full-integration-junit.xml](full-integration-junit.xml) |
 | pytest 独立验收补充 | 4 passed，0 skipped；两个入口通过，全部 skip / 提前 exit 0 被拒绝 | [pytest-verifier-junit.xml](pytest-verifier-junit.xml) |
 | Rootless 专项，包含于上述完整组 | 12 项；真实 OOM、PID 拒绝、CPU throttling、取消、worker 退出、只读挂载 | [专项说明](sandbox.md) |
+| OOM 内核计数补验 | rootless / rootful 各 1 passed；子进程 SIGKILL，`oom_kill` 正增量，observer 存活 | [rootless](oom-rootless-junit.xml) / [rootful development](oom-rootful-dev-junit.xml) |
 | 固定初始迁移 | 独立空数据库 upgrade → metadata check → downgrade → upgrade；11 张业务表及约束一致 | [迁移审计](migration.md) |
 | 30 个诊断任务资格 | 60 次 baseline/reference 独立 rootless 检查；30/30 原缺陷失败且参考修复通过 | [qualification.json](../../evals/qualification.json) |
 | 静态检查 | Ruff 通过；mypy 在 54 个源码文件中未发现问题 | 本文下方命令 |
@@ -63,6 +64,6 @@ env FORGE_TEST_DATABASE_URL="$FORGE_DATABASE_URL" \
 
 - OpenAI、Anthropic 真实账号 smoke：当前未配置本地 provider 凭据，未发送付费请求。
 - 真实 B0–B3、固定强模型和 evidence guard 消融：0/540 planned trials。还需要实际模型 ID、冻结能力/价格与明确的实验总费用上限。见 [live-status.json](../../evals/live-status.json)。
-- 远程 CI 结果另行记录；本地测试通过本身不代表 GitHub Actions 已通过。
+- 远程 CI：首次推送的离线 job 通过；集成 job 为 28 passed / 1 failed / 1 skipped，唯一失败是 Docker `OOMKilled` 元数据未置位（对应进程退出 137）。内核 cgroup 计数补验已在本地两种 daemon 通过，正在远程复跑。首轮记录：[Actions run 34199826740](https://github.com/JDinSeattle/forge-evidence-agent/actions/runs/34199826740)。
 
 没有模型修复率、成本改善百分比或 production-scale 声明。只读测试探针也不构成对同一 Python 解释器中任意恶意代码的密码学可信执行证明。

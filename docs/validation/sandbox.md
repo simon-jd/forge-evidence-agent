@@ -185,9 +185,10 @@ The passed real-rootless-daemon cases prove:
    owner cannot read. The operation enters `NeedsReconciliation`; it is not
    silently omitted from a supposedly complete snapshot. This previously skipped
    scenario now passed on the real rootless daemon.
-9. A job limited to **64 MiB** attempts a 256 MiB allocation. Its receipt records
-   exit code 137 and `oom_killed=true`, while the daemon remains available for the
-   remaining tests.
+9. At this original local observation, a job limited to **64 MiB** attempted a
+   256 MiB allocation. Its receipt recorded exit code 137 and `oom_killed=true`,
+   while the daemon remained available for the remaining tests. The OOM test was
+   subsequently revised to require direct cgroup kernel evidence, as below.
 10. A job limited to **16 PIDs** attempts at most 24 child spawns. It observes
     `EAGAIN` before reaching the profile limit and then explicitly terminates and
     reaps the children it did create. This is a bounded test, not an uncontrolled
@@ -203,6 +204,33 @@ The passed real-rootless-daemon cases prove:
 
 Only uniquely labelled containers created by each test are removed. Other project
 containers and concurrently running graders are outside this test cleanup scope.
+
+### OOM evidence follow-up, 2026-09-08
+
+The first remote rootful development CI invocation reported 28 passing tests,
+one rootless-only skip and one failure: the oversized allocation returned
+`error`/137, but Docker's reported `oom_killed` value was false. The cause of that
+metadata discrepancy has **not been established**. Exit 137 alone is also
+insufficient to prove that the configured memory cgroup caused the kill.
+
+The revised memory test keeps a small parent observer inside the 64 MiB cgroup.
+It reads `memory.max`, `memory.swap.max` and `memory.events`, then starts one child
+that attempts a 256 MiB allocation. The child increases its own `oom_score_adj`
+to 1000 to make it the preferred victim while leaving the cgroup limits intact.
+After reaping the child, the parent prints the before/after kernel counters and
+exits successfully. The test requires all of the following:
+
+- The kernel's memory limit is exactly 64 MiB, swap allowance is zero, and the
+  corresponding Docker memory configuration agrees.
+- The child was terminated by `SIGKILL` and the same cgroup's `oom_kill` counter
+  increased. Neither a plain nonzero exit nor Docker metadata alone satisfies it.
+- The parent emitted its observation and exited zero; the Docker daemon still
+  responds to a ping.
+
+The main development thread will run this revised test on both the real rootless
+daemon and the explicitly selected rootful development daemon. Their new results
+are separate from the original local JUnit observation above; no new passing
+result is claimed here before those executions.
 
 ## Defects found by real execution and corrected
 

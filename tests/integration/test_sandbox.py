@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import signal
 import subprocess
 import sys
 import uuid
@@ -234,13 +235,51 @@ async def test_sandbox_private_subordinate_uid_file_is_not_silently_skipped(sand
 async def test_sandbox_memory_cgroup_kills_only_oversized_job(sandbox: tuple[Workspace, DockerExecutor, RepoProfile]) -> None:
     workspace, executor, profile = sandbox
     profile = profile.model_copy(update={"memory_bytes": 64 * 1024 * 1024})
+    # Keep a small observer alive inside the same cgroup. Docker's OOMKilled
+    # metadata alone does not establish whether a child hit its memory limit.
+    script = """import json,os,subprocess,sys
+from pathlib import Path
+cgroup=Path('/sys/fs/cgroup')
+def events():
+    return {name:int(value) for name,value in
+            (line.split() for line in (cgroup/'memory.events').read_text().splitlines())}
+memory_max=int((cgroup/'memory.max').read_text())
+swap_max=int((cgroup/'memory.swap.max').read_text())
+before=events()
+child_code=("from pathlib import Path; "
+            "Path('/proc/self/oom_score_adj').write_text('1000'); "
+            "allocated=bytearray(256 * 1024 * 1024)")
+child=subprocess.Popen([sys.executable,'-c',child_code])
+try:
+    child_returncode=child.wait(timeout=8)
+finally:
+    if child.poll() is None:
+        child.kill()
+        child.wait()
+after=events()
+print(json.dumps({'memory_max':memory_max,'memory_swap_max':swap_max,
+                  'events_before':before,'events_after':after,
+                  'oom_kill_delta':after['oom_kill']-before['oom_kill'],
+                  'child_returncode':child_returncode,'child_pid':child.pid,
+                  'parent_pid':os.getpid(),'parent_survived':True}),flush=True)
+"""
     receipt = await executor.execute(
-        workspace, ["python", "-c", "allocated = bytearray(256 * 1024 * 1024);print(len(allocated))"],
-        10, "memory-limit", profile, 1,
+        workspace, ["python", "-c", script], 15, "memory-limit", profile, 1,
     )
-    assert receipt.status == "error" and receipt.exit_code == 137
-    assert receipt.resource_statistics["oom_killed"] is True
-    assert not executor._client().containers.get(receipt.container_id).attrs["State"]["Running"]
+    assert receipt.status == "ok" and receipt.exit_code == 0, receipt.model_dump_json()
+    observed = json.loads(receipt.stdout)
+    assert observed["memory_max"] == receipt.limits["memory_bytes"] == profile.memory_bytes
+    assert observed["memory_swap_max"] == 0
+    assert observed["child_returncode"] == -signal.SIGKILL
+    assert observed["oom_kill_delta"] == observed["events_after"]["oom_kill"] - observed["events_before"]["oom_kill"]
+    assert observed["oom_kill_delta"] > 0, observed
+    assert observed["parent_survived"] and observed["parent_pid"] != observed["child_pid"]
+    client = executor._client()
+    container = client.containers.get(receipt.container_id)
+    assert container.attrs["HostConfig"]["Memory"] == profile.memory_bytes
+    assert container.attrs["HostConfig"]["MemorySwap"] == profile.memory_bytes
+    assert container.attrs["State"]["ExitCode"] == 0 and not container.attrs["State"]["Running"]
+    assert client.ping() is True
 
 
 async def test_sandbox_pid_cgroup_refuses_bounded_child_spawns(sandbox: tuple[Workspace, DockerExecutor, RepoProfile]) -> None:
