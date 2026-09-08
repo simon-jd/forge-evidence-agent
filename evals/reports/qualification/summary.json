@@ -1,0 +1,102 @@
+{
+  "conditions": {
+    "baseline": {
+      "tasks": 30,
+      "planned_trials": 30,
+      "started_trials": 30,
+      "not_run_trials": 0,
+      "usable_trials": 30,
+      "infrastructure_failures": 0,
+      "verified_trials": 0,
+      "success_within_budget": 0,
+      "success_rate_all_started": 0.0,
+      "success_rate_usable": 0.0,
+      "cost_exact_usd": "0",
+      "reported_cost_sum_usd": "0",
+      "unknown_cost_trials": 0,
+      "reserved_unknown_usd": "0",
+      "cost_per_verified_usd": null,
+      "latency_median_seconds": 0.5549285200031591,
+      "latency_p95_seconds": 0.7099117330071749,
+      "failures": {
+        "target_failure": 30
+      },
+      "execution_kinds": {
+        "reference_validation": 30
+      },
+      "tool_calls": 0,
+      "compactions": 0,
+      "invalid_tool_calls": 0,
+      "input_tokens_reported": 0,
+      "output_tokens_reported": 0,
+      "cached_input_tokens_reported": 0,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 30,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 30,
+      "phase_seconds": {
+        "verification": 17.524299683020217
+      },
+      "phase_measurement_missing_trials": {
+        "model": 30,
+        "retrieval": 30,
+        "execution": 30,
+        "verification": 0
+      }
+    },
+    "reference": {
+      "tasks": 30,
+      "planned_trials": 30,
+      "started_trials": 30,
+      "not_run_trials": 0,
+      "usable_trials": 30,
+      "infrastructure_failures": 0,
+      "verified_trials": 30,
+      "success_within_budget": 30,
+      "success_rate_all_started": 1.0,
+      "success_rate_usable": 1.0,
+      "cost_exact_usd": "0",
+      "reported_cost_sum_usd": "0",
+      "unknown_cost_trials": 0,
+      "reserved_unknown_usd": "0",
+      "cost_per_verified_usd": "0",
+      "latency_median_seconds": 0.5713983769965125,
+      "latency_p95_seconds": 0.9320841389999259,
+      "failures": {},
+      "execution_kinds": {
+        "reference_validation": 30
+      },
+      "tool_calls": 0,
+      "compactions": 0,
+      "invalid_tool_calls": 0,
+      "input_tokens_reported": 0,
+      "output_tokens_reported": 0,
+      "cached_input_tokens_reported": 0,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 30,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 30,
+      "phase_seconds": {
+        "verification": 18.127031326977885
+      },
+      "phase_measurement_missing_trials": {
+        "model": 30,
+        "retrieval": 30,
+        "execution": 30,
+        "verification": 0
+      }
+    }
+  },
+  "paired_comparisons": [],
+  "interpretation": [
+    "Repeats are observations of the same tasks, not independent tasks or best-of-N success.",
+    "Infrastructure failures are separate; both all-started and usable success denominators are shown.",
+    "Unknown cost is not zero; exact cost per success is unavailable if any started trial has uncertain cost.",
+    "Fake and reference-validation results test plumbing and fixtures, not model repair quality.",
+    "The diagnostic heldout split is small and is not an official SWE-bench score."
+  ]
+}

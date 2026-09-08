@@ -1,0 +1,16 @@
+{
+  "status": "not_run",
+  "execution_kind": "live_model",
+  "dataset_version": "forge-diagnostics-v1",
+  "task_count": 30,
+  "development_tasks": 10,
+  "heldout_tasks": 20,
+  "conditions": ["B0", "B1", "B2", "B3", "strong_only", "B2_guard_off"],
+  "repeats_per_task_condition": 3,
+  "planned_trial_count": 540,
+  "completed_live_trials": 0,
+  "success_rate": null,
+  "cost_per_success_usd": null,
+  "reason": "No live model experiment has been executed. Explicit model configuration, provider credentials, frozen pricing and an authorized total experiment budget are required.",
+  "qualification_note": "qualification.json proves 30 original defects and their private reference fixes against independent Docker tests. It does not measure model repair quality."
+}

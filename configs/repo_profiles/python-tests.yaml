@@ -1,0 +1,23 @@
+# Register only after adapting the independent target test to this repository.
+# An empty target_test_argv deliberately yields regression_only, never verified.
+name: python-tests
+language: python
+image: forge-runner:dev
+validation_argv: [python, -I, -m, pytest, -q]
+target_test_argv: []
+allowed_patch_paths: ["src/**", "*.py"]
+protected_paths:
+  - ".git/**"
+  - ".forge/**"
+  - "tests/**"
+  - "**/conftest.py"
+  - "conftest.py"
+  - "sitecustomize.py"
+  - "usercustomize.py"
+  - "pyproject.toml"
+  - "pytest.ini"
+  - "setup.cfg"
+command_timeout_seconds: 120
+memory_bytes: 536870912
+cpu_limit: 1
+pid_limit: 128

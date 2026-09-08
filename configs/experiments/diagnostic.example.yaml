@@ -1,0 +1,5 @@
+# IDs resolve only inside the configured server directory.
+# Copy and point base_run_config to a fully configured, frozen live run config.
+base_run_config: openai.example
+profile_id: python-tests
+dataset_id: diagnostic-v1

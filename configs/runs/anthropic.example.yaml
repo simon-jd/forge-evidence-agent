@@ -1,0 +1,30 @@
+# Capability numbers below are configuration examples, not current model claims.
+# Replace every YOUR_* value and null price with your enabled model's contract.
+execution_mode: live
+run:
+  models:
+    - provider: anthropic
+      model_id: YOUR_ANTHROPIC_MODEL_ID
+      capabilities:
+        tool_calling: true
+        structured_output: false
+        parallel_tool_calls: false
+        native_compaction: false
+        context_window: 128000
+        max_output_tokens: 4096
+      input_usd_per_million: null
+      output_usd_per_million: null
+      cached_input_usd_per_million: null
+      cache_write_usd_per_million: null
+      price_version: unconfigured
+  max_escalations: 0
+  budget:
+    max_cost_usd: "1.00"
+    max_model_turns: 15
+    max_tool_calls: 50
+    max_output_tokens: 4096
+  context:
+    strategy: evidence_compact
+    input_budget: 24000
+    continuation_mode: portable
+  require_write_approval: true

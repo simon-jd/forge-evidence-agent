@@ -1,0 +1,3698 @@
+{
+  "started_at_utc": "2026-09-08T07:30:50.811677+00:00",
+  "database": "forge_migration_check_b7bd10bde451",
+  "result": "passed",
+  "steps": [
+    {
+      "command": "python -m alembic upgrade head",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "snapshot": {
+        "database": "forge_migration_check_b7bd10bde451",
+        "all_tables": [
+          "alembic_version",
+          "approvals",
+          "artifacts",
+          "eval_trials",
+          "evaluations",
+          "model_attempts",
+          "model_turns",
+          "projects",
+          "run_events",
+          "runs",
+          "tool_executions",
+          "user_messages"
+        ],
+        "business_tables": [
+          "approvals",
+          "artifacts",
+          "eval_trials",
+          "evaluations",
+          "model_attempts",
+          "model_turns",
+          "projects",
+          "run_events",
+          "runs",
+          "tool_executions",
+          "user_messages"
+        ],
+        "business_table_count": 11,
+        "revisions": [
+          "0001"
+        ],
+        "schema_sha256": "7ae2792c3112d0d2de91fd2ba53f0e4cb1221fb308ad264cd8fdad003789de3a",
+        "schema": {
+          "approvals": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "tool_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "args_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "workspace_revision",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "policy_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "version",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "decision",
+                "type": "VARCHAR(8)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "approvals_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "approvals_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              },
+              {
+                "name": "approvals_tool_id_fkey",
+                "constrained_columns": [
+                  "tool_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "tool_executions",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "tool_id",
+                  "workspace_revision"
+                ],
+                "name": "approvals_tool_id_workspace_revision_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "approvals_tool_id_workspace_revision_key",
+                "unique": true,
+                "column_names": [
+                  "tool_id",
+                  "workspace_revision"
+                ],
+                "duplicates_constraint": "approvals_tool_id_workspace_revision_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_approvals_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "artifacts": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "kind",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "details",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "artifacts_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "artifacts_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_artifacts_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_artifacts_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "eval_trials": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "evaluation_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "task_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "condition",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "repeat",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "result",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "eval_trials_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "eval_trials_evaluation_id_fkey",
+                "constrained_columns": [
+                  "evaluation_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "evaluations",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "evaluation_id",
+                  "task_id",
+                  "condition",
+                  "repeat"
+                ],
+                "name": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "unique": true,
+                "column_names": [
+                  "evaluation_id",
+                  "task_id",
+                  "condition",
+                  "repeat"
+                ],
+                "duplicates_constraint": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_eval_trials_evaluation_id",
+                "unique": false,
+                "column_names": [
+                  "evaluation_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "evaluations": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "config",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "results",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "evaluations_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_evaluations_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "model_attempts": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "payload",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "model_attempts_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "model_attempts_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_model_attempts_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "model_turns": {
+            "columns": [
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "response",
+                "type": "JSONB",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "artifact_ref",
+                "type": "VARCHAR(32)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "run_id",
+                "iteration"
+              ],
+              "name": "model_turns_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "model_turns_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": []
+          },
+          "projects": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "name",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "source",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "profile",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "projects_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_projects_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "run_events": {
+            "columns": [
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "seq",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "kind",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "payload",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "run_id",
+                "seq"
+              ],
+              "name": "run_events_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "run_events_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": []
+          },
+          "runs": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "project_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "idempotency_key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "task",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "base_commit",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "config",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "profile",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "manifest",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "source",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "stage",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "version",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "event_seq",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "lease_epoch",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "lease_expires_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "worker_id",
+                "type": "VARCHAR(128)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "cancel_requested",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "state",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "verification",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "updated_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "runs_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "runs_project_id_fkey",
+                "constrained_columns": [
+                  "project_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "projects",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "owner_id",
+                  "idempotency_key"
+                ],
+                "name": "runs_owner_id_idempotency_key_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_runs_claim",
+                "unique": false,
+                "column_names": [
+                  "status",
+                  "lease_expires_at",
+                  "created_at"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_runs_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "runs_owner_id_idempotency_key_key",
+                "unique": true,
+                "column_names": [
+                  "owner_id",
+                  "idempotency_key"
+                ],
+                "duplicates_constraint": "runs_owner_id_idempotency_key_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "tool_executions": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "ordinal",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "call_id",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "call",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "args_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "workspace_revision",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "epoch",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "result",
+                "type": "JSONB",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "tool_executions_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "tool_executions_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "call_id"
+                ],
+                "name": "tool_executions_run_id_iteration_call_id_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              },
+              {
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "ordinal"
+                ],
+                "name": "tool_executions_run_id_iteration_ordinal_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_tool_executions_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "tool_executions_run_id_iteration_call_id_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "call_id"
+                ],
+                "duplicates_constraint": "tool_executions_run_id_iteration_call_id_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "tool_executions_run_id_iteration_ordinal_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "ordinal"
+                ],
+                "duplicates_constraint": "tool_executions_run_id_iteration_ordinal_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "user_messages": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "idempotency_key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "text",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "applied_iteration",
+                "type": "INTEGER",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "user_messages_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "user_messages_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "run_id",
+                  "idempotency_key"
+                ],
+                "name": "user_messages_run_id_idempotency_key_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_user_messages_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "user_messages_run_id_idempotency_key_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "idempotency_key"
+                ],
+                "duplicates_constraint": "user_messages_run_id_idempotency_key_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "command": "python -m alembic check",
+      "exit_code": 0,
+      "stdout": "No new upgrade operations detected.\n",
+      "stderr": "",
+      "snapshot": {
+        "database": "forge_migration_check_b7bd10bde451",
+        "all_tables": [
+          "alembic_version",
+          "approvals",
+          "artifacts",
+          "eval_trials",
+          "evaluations",
+          "model_attempts",
+          "model_turns",
+          "projects",
+          "run_events",
+          "runs",
+          "tool_executions",
+          "user_messages"
+        ],
+        "business_tables": [
+          "approvals",
+          "artifacts",
+          "eval_trials",
+          "evaluations",
+          "model_attempts",
+          "model_turns",
+          "projects",
+          "run_events",
+          "runs",
+          "tool_executions",
+          "user_messages"
+        ],
+        "business_table_count": 11,
+        "revisions": [
+          "0001"
+        ],
+        "schema_sha256": "7ae2792c3112d0d2de91fd2ba53f0e4cb1221fb308ad264cd8fdad003789de3a",
+        "schema": {
+          "approvals": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "tool_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "args_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "workspace_revision",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "policy_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "version",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "decision",
+                "type": "VARCHAR(8)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "approvals_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "approvals_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              },
+              {
+                "name": "approvals_tool_id_fkey",
+                "constrained_columns": [
+                  "tool_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "tool_executions",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "tool_id",
+                  "workspace_revision"
+                ],
+                "name": "approvals_tool_id_workspace_revision_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "approvals_tool_id_workspace_revision_key",
+                "unique": true,
+                "column_names": [
+                  "tool_id",
+                  "workspace_revision"
+                ],
+                "duplicates_constraint": "approvals_tool_id_workspace_revision_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_approvals_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "artifacts": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "kind",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "details",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "artifacts_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "artifacts_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_artifacts_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_artifacts_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "eval_trials": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "evaluation_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "task_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "condition",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "repeat",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "result",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "eval_trials_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "eval_trials_evaluation_id_fkey",
+                "constrained_columns": [
+                  "evaluation_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "evaluations",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "evaluation_id",
+                  "task_id",
+                  "condition",
+                  "repeat"
+                ],
+                "name": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "unique": true,
+                "column_names": [
+                  "evaluation_id",
+                  "task_id",
+                  "condition",
+                  "repeat"
+                ],
+                "duplicates_constraint": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_eval_trials_evaluation_id",
+                "unique": false,
+                "column_names": [
+                  "evaluation_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "evaluations": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "config",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "results",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "evaluations_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_evaluations_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "model_attempts": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "payload",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "model_attempts_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "model_attempts_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_model_attempts_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "model_turns": {
+            "columns": [
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "response",
+                "type": "JSONB",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "artifact_ref",
+                "type": "VARCHAR(32)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "run_id",
+                "iteration"
+              ],
+              "name": "model_turns_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "model_turns_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": []
+          },
+          "projects": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "name",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "source",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "profile",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "projects_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_projects_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "run_events": {
+            "columns": [
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "seq",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "kind",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "payload",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "run_id",
+                "seq"
+              ],
+              "name": "run_events_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "run_events_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": []
+          },
+          "runs": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "project_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "idempotency_key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "task",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "base_commit",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "config",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "profile",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "manifest",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "source",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "stage",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "version",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "event_seq",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "lease_epoch",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "lease_expires_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "worker_id",
+                "type": "VARCHAR(128)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "cancel_requested",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "state",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "verification",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "updated_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "runs_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "runs_project_id_fkey",
+                "constrained_columns": [
+                  "project_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "projects",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "owner_id",
+                  "idempotency_key"
+                ],
+                "name": "runs_owner_id_idempotency_key_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_runs_claim",
+                "unique": false,
+                "column_names": [
+                  "status",
+                  "lease_expires_at",
+                  "created_at"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_runs_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "runs_owner_id_idempotency_key_key",
+                "unique": true,
+                "column_names": [
+                  "owner_id",
+                  "idempotency_key"
+                ],
+                "duplicates_constraint": "runs_owner_id_idempotency_key_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "tool_executions": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "ordinal",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "call_id",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "call",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "args_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "workspace_revision",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "epoch",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "result",
+                "type": "JSONB",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "tool_executions_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "tool_executions_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "call_id"
+                ],
+                "name": "tool_executions_run_id_iteration_call_id_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              },
+              {
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "ordinal"
+                ],
+                "name": "tool_executions_run_id_iteration_ordinal_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_tool_executions_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "tool_executions_run_id_iteration_call_id_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "call_id"
+                ],
+                "duplicates_constraint": "tool_executions_run_id_iteration_call_id_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "tool_executions_run_id_iteration_ordinal_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "ordinal"
+                ],
+                "duplicates_constraint": "tool_executions_run_id_iteration_ordinal_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "user_messages": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "idempotency_key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "text",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "applied_iteration",
+                "type": "INTEGER",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "user_messages_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "user_messages_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "run_id",
+                  "idempotency_key"
+                ],
+                "name": "user_messages_run_id_idempotency_key_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_user_messages_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "user_messages_run_id_idempotency_key_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "idempotency_key"
+                ],
+                "duplicates_constraint": "user_messages_run_id_idempotency_key_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "command": "python -m alembic downgrade base",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "snapshot": {
+        "database": "forge_migration_check_b7bd10bde451",
+        "all_tables": [
+          "alembic_version"
+        ],
+        "business_tables": [],
+        "business_table_count": 0,
+        "revisions": [],
+        "schema_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "schema": {}
+      }
+    },
+    {
+      "command": "python -m alembic upgrade head",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "snapshot": {
+        "database": "forge_migration_check_b7bd10bde451",
+        "all_tables": [
+          "alembic_version",
+          "approvals",
+          "artifacts",
+          "eval_trials",
+          "evaluations",
+          "model_attempts",
+          "model_turns",
+          "projects",
+          "run_events",
+          "runs",
+          "tool_executions",
+          "user_messages"
+        ],
+        "business_tables": [
+          "approvals",
+          "artifacts",
+          "eval_trials",
+          "evaluations",
+          "model_attempts",
+          "model_turns",
+          "projects",
+          "run_events",
+          "runs",
+          "tool_executions",
+          "user_messages"
+        ],
+        "business_table_count": 11,
+        "revisions": [
+          "0001"
+        ],
+        "schema_sha256": "7ae2792c3112d0d2de91fd2ba53f0e4cb1221fb308ad264cd8fdad003789de3a",
+        "schema": {
+          "approvals": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "tool_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "args_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "workspace_revision",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "policy_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "version",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "decision",
+                "type": "VARCHAR(8)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "approvals_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "approvals_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              },
+              {
+                "name": "approvals_tool_id_fkey",
+                "constrained_columns": [
+                  "tool_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "tool_executions",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "tool_id",
+                  "workspace_revision"
+                ],
+                "name": "approvals_tool_id_workspace_revision_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "approvals_tool_id_workspace_revision_key",
+                "unique": true,
+                "column_names": [
+                  "tool_id",
+                  "workspace_revision"
+                ],
+                "duplicates_constraint": "approvals_tool_id_workspace_revision_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_approvals_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "artifacts": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "kind",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "details",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "artifacts_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "artifacts_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_artifacts_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_artifacts_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "eval_trials": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "evaluation_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "task_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "condition",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "repeat",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "result",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "eval_trials_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "eval_trials_evaluation_id_fkey",
+                "constrained_columns": [
+                  "evaluation_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "evaluations",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "evaluation_id",
+                  "task_id",
+                  "condition",
+                  "repeat"
+                ],
+                "name": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "unique": true,
+                "column_names": [
+                  "evaluation_id",
+                  "task_id",
+                  "condition",
+                  "repeat"
+                ],
+                "duplicates_constraint": "eval_trials_evaluation_id_task_id_condition_repeat_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_eval_trials_evaluation_id",
+                "unique": false,
+                "column_names": [
+                  "evaluation_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "evaluations": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "config",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "results",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "evaluations_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_evaluations_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "model_attempts": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "payload",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "model_attempts_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "model_attempts_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_model_attempts_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "model_turns": {
+            "columns": [
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "response",
+                "type": "JSONB",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "artifact_ref",
+                "type": "VARCHAR(32)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "run_id",
+                "iteration"
+              ],
+              "name": "model_turns_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "model_turns_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": []
+          },
+          "projects": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "name",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "source",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "profile",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "projects_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [],
+            "unique_constraints": [],
+            "indexes": [
+              {
+                "name": "ix_projects_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "run_events": {
+            "columns": [
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "seq",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "kind",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "payload",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "run_id",
+                "seq"
+              ],
+              "name": "run_events_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "run_events_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [],
+            "indexes": []
+          },
+          "runs": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "project_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "owner_id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "idempotency_key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "task",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "base_commit",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "config",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "profile",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "manifest",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "source",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "stage",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "version",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "event_seq",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "lease_epoch",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "lease_expires_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "worker_id",
+                "type": "VARCHAR(128)",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "cancel_requested",
+                "type": "BOOLEAN",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "state",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "verification",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "updated_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "runs_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "runs_project_id_fkey",
+                "constrained_columns": [
+                  "project_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "projects",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "owner_id",
+                  "idempotency_key"
+                ],
+                "name": "runs_owner_id_idempotency_key_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_runs_claim",
+                "unique": false,
+                "column_names": [
+                  "status",
+                  "lease_expires_at",
+                  "created_at"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "ix_runs_owner_id",
+                "unique": false,
+                "column_names": [
+                  "owner_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "runs_owner_id_idempotency_key_key",
+                "unique": true,
+                "column_names": [
+                  "owner_id",
+                  "idempotency_key"
+                ],
+                "duplicates_constraint": "runs_owner_id_idempotency_key_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "tool_executions": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(128)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "iteration",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "ordinal",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "call_id",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "call",
+                "type": "JSONB",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "args_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "workspace_revision",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "epoch",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "result",
+                "type": "JSONB",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "tool_executions_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "tool_executions_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "call_id"
+                ],
+                "name": "tool_executions_run_id_iteration_call_id_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              },
+              {
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "ordinal"
+                ],
+                "name": "tool_executions_run_id_iteration_ordinal_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_tool_executions_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "tool_executions_run_id_iteration_call_id_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "call_id"
+                ],
+                "duplicates_constraint": "tool_executions_run_id_iteration_call_id_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "tool_executions_run_id_iteration_ordinal_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "iteration",
+                  "ordinal"
+                ],
+                "duplicates_constraint": "tool_executions_run_id_iteration_ordinal_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          },
+          "user_messages": {
+            "columns": [
+              {
+                "name": "id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "run_id",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "idempotency_key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "request_hash",
+                "type": "VARCHAR(64)",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "text",
+                "type": "TEXT",
+                "nullable": false,
+                "default": null
+              },
+              {
+                "name": "applied_iteration",
+                "type": "INTEGER",
+                "nullable": true,
+                "default": null
+              },
+              {
+                "name": "created_at",
+                "type": "DOUBLE PRECISION",
+                "nullable": false,
+                "default": null
+              }
+            ],
+            "primary_key": {
+              "constrained_columns": [
+                "id"
+              ],
+              "name": "user_messages_pkey",
+              "comment": null,
+              "dialect_options": {
+                "postgresql_include": []
+              }
+            },
+            "foreign_keys": [
+              {
+                "name": "user_messages_run_id_fkey",
+                "constrained_columns": [
+                  "run_id"
+                ],
+                "referred_schema": "public",
+                "referred_table": "runs",
+                "referred_columns": [
+                  "id"
+                ],
+                "options": {},
+                "comment": null
+              }
+            ],
+            "unique_constraints": [
+              {
+                "column_names": [
+                  "run_id",
+                  "idempotency_key"
+                ],
+                "name": "user_messages_run_id_idempotency_key_key",
+                "comment": null,
+                "dialect_options": {
+                  "postgresql_include": [],
+                  "postgresql_nulls_not_distinct": false
+                }
+              }
+            ],
+            "indexes": [
+              {
+                "name": "ix_user_messages_run_id",
+                "unique": false,
+                "column_names": [
+                  "run_id"
+                ],
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              },
+              {
+                "name": "user_messages_run_id_idempotency_key_key",
+                "unique": true,
+                "column_names": [
+                  "run_id",
+                  "idempotency_key"
+                ],
+                "duplicates_constraint": "user_messages_run_id_idempotency_key_key",
+                "include_columns": [],
+                "dialect_options": {
+                  "postgresql_include": []
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "cleanup": "dropped_scratch_database",
+  "migration_file": "migrations/versions/0001_ledger.py",
+  "migration_sha256": "01d3c50e468291b6a31d7e3991779850e2aac3838fd80c5a35bebeeb6bdeecc3",
+  "audit_script_sha256": "2b7a6f9c737c4b7af4aabd594aef93f27b31bab184a6cb004ac3b0a65ffeca1f",
+  "versions": {
+    "alembic": "1.19.2",
+    "SQLAlchemy": "2.0.52",
+    "psycopg": "3.3.5"
+  },
+  "postgresql_version": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "initial": {
+    "database": "forge_migration_check_b7bd10bde451",
+    "all_tables": [],
+    "business_tables": [],
+    "business_table_count": 0,
+    "revisions": [],
+    "schema_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "schema": {}
+  },
+  "finished_at_utc": "2026-09-08T07:30:52.791278+00:00"
+}

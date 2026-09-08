@@ -1,0 +1,37 @@
+# Protocol wiring only. This script proposes completion without generating a
+# repair; independent validation determines the result. Never count as AI quality.
+execution_mode: offline_scripted
+run:
+  models:
+    - provider: fake
+      model_id: scripted
+      input_usd_per_million: "0"
+      output_usd_per_million: "0"
+      cached_input_usd_per_million: "0"
+      cache_write_usd_per_million: "0"
+      price_version: offline-zero
+  max_escalations: 0
+  context:
+    strategy: evidence_compact
+    input_budget: 16000
+  budget:
+    max_model_turns: 2
+    max_tool_calls: 4
+    max_repair_rounds: 0
+    max_cost_usd: "0.01"
+scripted_turns:
+  - provider: fake
+    requested_model: scripted
+    visible_text: "Offline protocol fixture: propose completion for independent validation."
+    complete_tool_calls:
+      - call_id: scripted-finish-1
+        name: finish
+        arguments:
+          summary: "Protocol fixture reached the verifier; no AI repair was performed."
+          claimed_changes: []
+    usage:
+      input_tokens: 0
+      output_tokens: 0
+      cached_input_tokens: 0
+      cache_write_tokens: 0
+    finish_reason: tool_calls

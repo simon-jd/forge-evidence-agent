@@ -1,0 +1,84 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    name: Offline unit and provider contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.10"
+          python-version: "3.13"
+          enable-cache: true
+      - run: sudo apt-get update && sudo apt-get install -y ripgrep
+      - run: uv sync --frozen
+      - run: uv run --no-sync ruff check src scripts tests examples migrations
+      - run: uv run --no-sync mypy src scripts/demo.py scripts/check_migration.py
+      - run: uv run --no-sync pytest tests/unit tests/contract tests/review -q --junitxml=results/ci/offline.xml
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: offline-contract-evidence
+          path: results/ci/offline.xml
+
+  postgres-docker-development:
+    name: PostgreSQL + rootful Docker development boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: forge
+          POSTGRES_PASSWORD: forge_ci_local
+          POSTGRES_DB: forge
+        ports:
+          - 55471:5432
+        options: >-
+          --health-cmd "pg_isready -U forge -d forge"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      FORGE_DATABASE_URL: postgresql+psycopg://forge:forge_ci_local@127.0.0.1:55471/forge
+      FORGE_TEST_DATABASE_URL: postgresql+psycopg://forge:forge_ci_local@127.0.0.1:55471/forge
+      FORGE_TEST_DOCKER_HOST: unix:///var/run/docker.sock
+      FORGE_TEST_IMAGE: forge-runner:dev
+      FORGE_ALLOW_ROOTFUL_TESTS: "1"
+      FORGE_RUN_PUBLIC_CLIENT: "1"
+      FORGE_PUBLIC_CLIENT_EVIDENCE: results/ci/public-client-rootful-dev.json
+      OPENAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.10"
+          python-version: "3.13"
+          enable-cache: true
+      - run: sudo apt-get update && sudo apt-get install -y ripgrep
+      - run: uv sync --frozen
+      - run: uv run --no-sync alembic upgrade head
+      - run: uv run --no-sync python scripts/check_migration.py --output results/ci/migration.json
+      - run: docker build -f docker/runner.Dockerfile -t forge-runner:dev .
+      # CI uses its standard rootful daemon explicitly. Rootless-only behavior
+      # has separate local evidence and is never inferred from this job.
+      - run: uv run --no-sync pytest tests/integration/test_sandbox.py tests/integration/test_runtime.py tests/integration/test_pytest_verifier.py tests/integration/test_eval_worker.py tests/integration/test_public_client.py -q --junitxml=results/ci/integration-rootful-dev.xml
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: postgres-rootful-development-evidence
+          path: |
+            results/ci/integration-rootful-dev.xml
+            results/ci/public-client-rootful-dev.json
+            results/ci/migration.json

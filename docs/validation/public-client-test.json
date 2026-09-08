@@ -1,0 +1,456 @@
+{
+  "observed_at": "2026-09-08T00:10:38.817355+00:00",
+  "execution_mode": "offline_scripted",
+  "purpose": "public_client_control_flow",
+  "model_quality_claim": false,
+  "run_id": "cf7460fb6db742c3b6bc19bb0b06258a",
+  "base_commit": "edd3860ef04bd7c72ce3a40fa27a543cd0965c93",
+  "status": "completed",
+  "verification": {
+    "checks": {
+      "target": {
+        "passed": true,
+        "record": {
+          "nonce": "366d8f5b4a5c18548f90362f57cd97e6e5071e6de8862025ef70b163656bee8d",
+          "errors": 0,
+          "skipped": 0,
+          "version": 1,
+          "executed": [
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "failures": 0,
+          "collected": [
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "exit_code": 0,
+          "framework": "unittest",
+          "expected_failures": 0,
+          "unexpected_successes": 0
+        },
+        "complete": true,
+        "supported": true
+      },
+      "regression": {
+        "passed": true,
+        "record": {
+          "nonce": "7a732185a4cb6e6631ce8620b2bbfee7dfa69915d1c60fffac6cc12a322ad027",
+          "errors": 0,
+          "skipped": 0,
+          "version": 1,
+          "executed": [
+            "test_cursor.PageContractTests.test_cursor_roundtrip",
+            "test_cursor.PageContractTests.test_empty_and_bounded_page_size",
+            "test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload",
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "failures": 0,
+          "collected": [
+            "test_cursor.PageContractTests.test_cursor_roundtrip",
+            "test_cursor.PageContractTests.test_empty_and_bounded_page_size",
+            "test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload",
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "exit_code": 0,
+          "framework": "unittest",
+          "expected_failures": 0,
+          "unexpected_successes": 0
+        },
+        "complete": true,
+        "supported": true
+      },
+      "workspace_unchanged": true
+    },
+    "status": "verified",
+    "summary": "regression=0; target=0; validation_workspace_unchanged=True; regression_completion=True; target_completion=True\nFORGE_TEST_COMPLETION={\"collected\": [\"test_cursor.PageContractTests.test_cursor_roundtrip\", \"test_cursor.PageContractTests.test_empty_and_bounded_page_size\", \"test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload\", \"test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive\", \"test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate\", \"test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond\"], \"errors\": 0, \"executed\": [\"test_cursor.PageContractTests.test_cursor_roundtrip\", \"test_cursor.PageContractTests.test_empty_and_bounded_page_size\", \"test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload\", \"test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive\", \"test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate\", \"test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond\"], \"exit_code\": 0, \"expected_failures\": 0, \"failures\": 0, \"framework\": \"unittest\", \"nonce\": \"7a732185a4cb6e6631ce8620b2bbfee7dfa69915d1c60fffac6cc12a322ad027\", \"skipped\": 0, \"unexpected_successes\": 0, \"version\": 1}\n......\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n",
+    "artifact_refs": [
+      "3d6c63f00b5a4a67961f92c3388c402b",
+      "8c11a83ab8894a0f84a4b01d0711eae7",
+      "8a5ca14941594dbdb50a0f60cac0feab"
+    ],
+    "final_exit_code": 0,
+    "target_exit_code": 0,
+    "baseline_exit_code": 1
+  },
+  "budget": {
+    "started_at": "2026-09-08T00:10:35.213851Z",
+    "tool_calls": 4,
+    "reservations": {
+      "1699b28e-d6bd-44b5-b5ea-69f63aee5b11": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "1699b28e-d6bd-44b5-b5ea-69f63aee5b11",
+        "charged_usd": "0",
+        "input_tokens": 10434,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      },
+      "589b36a6-7804-4a80-9cbe-e35317403fae": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "589b36a6-7804-4a80-9cbe-e35317403fae",
+        "charged_usd": "0",
+        "input_tokens": 7844,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      },
+      "5d83a442-8913-452d-900b-449c85cd1a67": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "5d83a442-8913-452d-900b-449c85cd1a67",
+        "charged_usd": "0",
+        "input_tokens": 10865,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      },
+      "d2d22da8-272e-437d-aefc-3f5a0797b0fc": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "d2d22da8-272e-437d-aefc-3f5a0797b0fc",
+        "charged_usd": "0",
+        "input_tokens": 9613,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      }
+    },
+    "repair_rounds": 0
+  },
+  "manifest": {
+    "models": [
+      {
+        "model_id": "scripted",
+        "provider": "fake",
+        "capabilities": {
+          "tool_search": false,
+          "tool_calling": true,
+          "context_window": 128000,
+          "max_output_tokens": 8192,
+          "native_compaction": false,
+          "structured_output": false,
+          "native_async_tools": false,
+          "parallel_tool_calls": false,
+          "incompatible_features": []
+        },
+        "price_version": "offline-zero",
+        "input_usd_per_million": "0",
+        "output_usd_per_million": "0",
+        "cache_write_usd_per_million": "0",
+        "cached_input_usd_per_million": "0"
+      }
+    ],
+    "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+    "config_id": "demo",
+    "base_commit": "edd3860ef04bd7c72ce3a40fa27a543cd0965c93",
+    "config_hash": "583e52f561f0a55a9e696c3a874720de2a3d87e564c3cdee867152f24dbef16c",
+    "profile_hash": "749152eb31358b4117f6d00b6fd7b8e1990f64271339b1d8dc0a3b2827a3154b",
+    "prompt_hashes": {
+      "system.txt": "20c5452b8e8ddc9b4ff5f3f517c8d97a17b8db27bf23fb065793f8c385323c0d"
+    },
+    "execution_mode": "offline_scripted",
+    "tool_schema_hash": "4d0861220097de751e5dc03f74449d6843bb024f286dce8468bdc95f2bac79ee",
+    "model_version_note": "Configured IDs are preserved; aliases may change provider-side.",
+    "dependency_versions": {
+      "docker": "7.2.0",
+      "openai": "3.8.0",
+      "pydantic": "2.13.5",
+      "anthropic": "1.4.0",
+      "langgraph": "1.2.11",
+      "sqlalchemy": "2.0.52",
+      "forge-agent": "0.1.0",
+      "tree-sitter": "0.26.0",
+      "tree-sitter-python": "0.25.0",
+      "langgraph-checkpoint-postgres": "3.1.2"
+    },
+    "actual_system_prompt_hash": "26b7a1935840a855c9ad52af7a80595d07ea1c6c1e12ed8a2d1439938adfe76f"
+  },
+  "elapsed_seconds": 6.405,
+  "event_count": 50,
+  "event_types": [
+    "run.created",
+    "message.received",
+    "run.claimed",
+    "stage.changed",
+    "stage.changed",
+    "validation.finished",
+    "message.applied",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "validation.finished",
+    "run.finished"
+  ],
+  "tool_call_ids": [
+    "demo-read",
+    "demo-patch",
+    "demo-focused-test",
+    "demo-finish"
+  ],
+  "source_unchanged": true,
+  "submission_idempotent": true,
+  "message_idempotent": true,
+  "watch_disconnected_before_execution": true,
+  "sse_contiguous_after_resume": true,
+  "sse_final_cursor_empty": true,
+  "separate_api_worker_processes": true,
+  "receipts": [
+    {
+      "kind": "baseline_receipt",
+      "status": "error",
+      "exit_code": 1,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 0,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    },
+    {
+      "kind": "baseline_target_receipt",
+      "status": "error",
+      "exit_code": 1,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 0,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    },
+    {
+      "kind": "command_receipt",
+      "status": "ok",
+      "exit_code": 0,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 1,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": false
+      }
+    },
+    {
+      "kind": "validation_receipt",
+      "status": "ok",
+      "exit_code": 0,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 1,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    },
+    {
+      "kind": "target_receipt",
+      "status": "ok",
+      "exit_code": 0,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 1,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    }
+  ],
+  "patch": "diff --git a/replay.py b/replay.py\n--- a/replay.py\n+++ b/replay.py\n@@ -30,5 +30,6 @@\n         raise ValueError(\"limit must be between 1 and 500\")\n     ordered = sorted(events, key=lambda event: (event.timestamp_ms, event.sequence))\n     if after is not None:\n-        ordered = [event for event in ordered if event.timestamp_ms > after.timestamp_ms]\n+        ordered = [event for event in ordered\n+                   if (event.timestamp_ms, event.sequence) > (after.timestamp_ms, after.sequence)]\n     return ordered[:limit]\n"
+}

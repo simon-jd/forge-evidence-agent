@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forge-agent"
+version = "0.1.0"
+description = "A coding-agent workbench with versioned evidence and independently verified patches"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "alembic",
+  "anthropic",
+  "docker",
+  "fastapi",
+  "httpx",
+  "jinja2",
+  "langgraph",
+  "langgraph-checkpoint-postgres",
+  "openai",
+  "opentelemetry-api",
+  "opentelemetry-sdk",
+  "opentelemetry-exporter-otlp-proto-http",
+  "psycopg[binary,pool]",
+  "pydantic>=2.0",
+  "pydantic-settings",
+  "pyyaml",
+  "rich",
+  "sqlalchemy[asyncio]>=2.0",
+  "tree-sitter",
+  "tree-sitter-python",
+  "typer",
+  "uvicorn",
+  "unidiff",
+  "jsonschema>=4.26.0",
+  "httpx2>=2.12.0",
+]
+
+[project.scripts]
+forge = "forge.cli.main:app"
+forge-worker = "forge.worker:main"
+forge-eval-worker = "forge.evals.worker:main"
+
+[dependency-groups]
+dev = ["aiosqlite", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "respx", "ruff", "types-PyYAML"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/forge"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+  "postgres: requires the dedicated Forge PostgreSQL service",
+  "docker: requires a Docker daemon and Forge test image",
+  "live: invokes a paid external model with explicit budget approval",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["evals/fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.13"
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

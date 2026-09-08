@@ -1,0 +1,655 @@
+{
+  "version": "forge-diagnostics-v1",
+  "frozen_on": "2026-09-07",
+  "split_policy": "10 development / 20 heldout; each defect family appears in one split only",
+  "visibility": "Public task source; target tests and reference fixes reside in an external private directory.",
+  "tasks": [
+    {
+      "task_id": "window-admission",
+      "split": "dev",
+      "family": "rolling-quota",
+      "tags": [],
+      "fixture_dir": "fixtures/window-admission",
+      "base_commit": "e8a2cf3ccac9774d38acea450d724e88da308c14",
+      "file_hashes": {
+        "limiter.py": "5f3e6d7f062c188d7615bef4e2fb2ccf2b310f442098e163588b40eaff80ca93",
+        "tests/test_public.py": "de4804fd958a641f7916c47aaa4b3370a27bec5056cadb4115432ccf77f2ff57"
+      },
+      "instruction": "The gateway enforces a rolling request quota. Requests exactly one window old must stop consuming quota; preserve burst rejection inside the window.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "limiter.py"
+      ],
+      "private_spec_sha256": "25aa9834a4f4dbf1adfe60f56760439fc7d791aa35ae18d1cb661843d23f5efe"
+    },
+    {
+      "task_id": "retry-header",
+      "split": "dev",
+      "family": "http-delay-parsing",
+      "tags": [],
+      "fixture_dir": "fixtures/retry-header",
+      "base_commit": "805d23db32fe00a12fb9193e5e0efb697af7e22b",
+      "file_hashes": {
+        "retry_policy.py": "c0e0664094768ae0e391cf985eefff5cf43706ccb7a40c35c5c52c14b941b1bc",
+        "tests/test_public.py": "591ef84200d70d2696502c94c065567de01d846fae7b99d606fb51270d157611"
+      },
+      "instruction": "Retry-After can be delta seconds or an HTTP date. Return nonnegative seconds relative to the provided UTC clock. Malformed values use the caller default.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "retry_policy.py"
+      ],
+      "private_spec_sha256": "23db28063069313ba00c85b3a46cf9d431a29c31ded7497cb80f046d19910555"
+    },
+    {
+      "task_id": "utf8-stream",
+      "split": "dev",
+      "family": "byte-stream-decoding",
+      "tags": [],
+      "fixture_dir": "fixtures/utf8-stream",
+      "base_commit": "d973fa92eabb82dffdeb9efae5d10b6f79ad786e",
+      "file_hashes": {
+        "decoder.py": "e55491cf58e94e90b48c97e125815eca10ba0302d7d28ec21df4d46dab7f39b4",
+        "tests/test_public.py": "2b334738f470117a2019d56b6f8d432682d5956064deabd067cd0c984bba8e65"
+      },
+      "instruction": "The model transport receives arbitrary byte chunks. Decode UTF-8 without losing characters when a character spans chunks, and support an explicit final flush.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "decoder.py"
+      ],
+      "private_spec_sha256": "b9e12878b587ec93876ff2f197f9084cfd574951f981bb75f94af89766c1b1f7"
+    },
+    {
+      "task_id": "sse-data-lines",
+      "split": "dev",
+      "family": "event-stream-framing",
+      "tags": [],
+      "fixture_dir": "fixtures/sse-data-lines",
+      "base_commit": "cb80a800ba45633c84693c8cbb82f0628105d831",
+      "file_hashes": {
+        "sse.py": "abdaa36206e609b1de9d0628953e815c3324d843166f9bc07036a7d663c807ab",
+        "tests/test_public.py": "f1bf5c0654f02774479750940a28c4eb01a18792eb8b360c64e6db6513758253"
+      },
+      "instruction": "Parse one SSE event from its lines. Multiple data fields join with newline, comments are ignored, and only one optional space after a colon is removed.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "sse.py"
+      ],
+      "private_spec_sha256": "5a930bd832953aca5aac4be0f30d3db566f530254e40b6f603e06fb8074b0501"
+    },
+    {
+      "task_id": "interleaved-tools",
+      "split": "dev",
+      "family": "tool-delta-assembly",
+      "tags": [],
+      "fixture_dir": "fixtures/interleaved-tools",
+      "base_commit": "706033246f348b8c2bb466cd74157354a5ebcb0a",
+      "file_hashes": {
+        "assembler.py": "e7968a750c328d30f295a93a43368f621451be104bdc6880e5397c64aebfc675",
+        "tests/test_public.py": "ec60a02b6503147bc7519fe63a0d2c81b140a8062f36c06cd1fe1ad31e493b7f"
+      },
+      "instruction": "Tool argument deltas can interleave. Assemble each tool call independently and return parsed arguments for the requested call without consuming another call.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "assembler.py"
+      ],
+      "private_spec_sha256": "92e76fa57add1d054f2125b82be23beefb7d5f10fbb0f064f8e4640486cac604"
+    },
+    {
+      "task_id": "cached-billing",
+      "split": "dev",
+      "family": "token-billing",
+      "tags": [],
+      "fixture_dir": "fixtures/cached-billing",
+      "base_commit": "da5b4450432668ac7189418615a1e2c7ef683549",
+      "file_hashes": {
+        "billing.py": "3326576b160e4877a0d9356067af718cdabd0fd271d151f3cc594876facae5ff",
+        "tests/test_public.py": "107c793fbf9267eace232a5b677ac03a3f38ec66d4bb434379ffe5fd5e4941bd"
+      },
+      "instruction": "input_tokens is the total including cached tokens. Apply the cache rate only to the cached subset and preserve Decimal precision for dollar accounting.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "billing.py"
+      ],
+      "private_spec_sha256": "3bed5a3054e9ee205a570aaaf4afa6fe04832015b4b1dcd40b683133f9f7e0d2"
+    },
+    {
+      "task_id": "workspace-prefix",
+      "split": "dev",
+      "family": "path-containment",
+      "tags": [],
+      "fixture_dir": "fixtures/workspace-prefix",
+      "base_commit": "d04c946bd8e1b9e317dccc81934ca39c92b294e3",
+      "file_hashes": {
+        "paths.py": "9b3de4b2cae8133ad07f1c652f33fc4715a916009fc3a84e0bd738e3260b9827",
+        "tests/test_public.py": "91a2818bb841856dad5c9b6f2c3d80a7cce2f39701acdd7aea7d6ccfc9b06bd5"
+      },
+      "instruction": "Resolve requested paths beneath a workspace. A sibling whose name merely begins with the workspace name is outside; symlink escapes are outside as well.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "paths.py"
+      ],
+      "private_spec_sha256": "3b8cf571c5377b144abbac0a05e18149efa7f801bc9f4ba55942e30b59412b04"
+    },
+    {
+      "task_id": "content-cache",
+      "split": "dev",
+      "family": "file-cache-identity",
+      "tags": [],
+      "fixture_dir": "fixtures/content-cache",
+      "base_commit": "c5ed21cf349f2f6c6965f4814695a9ebed92d87b",
+      "file_hashes": {
+        "file_cache.py": "6b76f423341a9dd8639057e6824eb90edc4436d68cf57ab8a8990afb2835cd65",
+        "tests/test_public.py": "2dd945c7eb1f9d733de17118b0bf9c9bd43fe6c8de213945c0b80ef1c2b0cc81"
+      },
+      "instruction": "A symbol cache must notice content edits even when a build tool restores the same file size and mtime. Unchanged contents should continue to reuse the parsed result.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "file_cache.py"
+      ],
+      "private_spec_sha256": "2d3880c426c12c9938fae83cd3a389a613fe6101c86aadeef0284c1851d3ba27"
+    },
+    {
+      "task_id": "cursor-ties",
+      "split": "dev",
+      "family": "stable-pagination",
+      "tags": [],
+      "fixture_dir": "fixtures/cursor-ties",
+      "base_commit": "a0e1542a9549c800993bd4e7d0167f31634b39b1",
+      "file_hashes": {
+        "pagination.py": "4d59af21291fe23d5c9c9c2c9a7b594921bbb11d1d80ba2f8b0bdc68a6201dfa",
+        "tests/test_public.py": "8fed24a5bbd2a9333dc93af7e65dc414e49dbd55a154badf97840effb6162ee8"
+      },
+      "instruction": "Events are ordered by (created_at, id). Resume after that complete cursor so rows sharing a timestamp are neither skipped nor repeated.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "pagination.py"
+      ],
+      "private_spec_sha256": "46788bdbf9e0842ae6d93ec29aa790244cb1d6acad6120876a37050616c168ba"
+    },
+    {
+      "task_id": "lease-fence",
+      "split": "dev",
+      "family": "epoch-ownership",
+      "tags": [],
+      "fixture_dir": "fixtures/lease-fence",
+      "base_commit": "5232cd40be0281f4b82cacf30e5fced93858ce27",
+      "file_hashes": {
+        "lease_store.py": "ccda45007e4a514e707577a47bf6d7e10560da8e57047f0c748efce5e7ffcb54",
+        "tests/test_public.py": "0cb674721f5c0b3f2f25864a6a219a377e1e2ac558d9b4ae740fe5bc5176e010"
+      },
+      "instruction": "Only the currently claimed lease epoch may write. A former worker must remain fenced out after a newer owner claims, while same-epoch writes stay valid.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "lease_store.py"
+      ],
+      "private_spec_sha256": "c883984aba73eed64cc136e98b4908777703ff39cbe25f523106237224659091"
+    },
+    {
+      "task_id": "subscriber-acks",
+      "split": "heldout",
+      "family": "fanout-delivery",
+      "tags": [],
+      "fixture_dir": "fixtures/subscriber-acks",
+      "base_commit": "80ea5b12a4802970610d0e2179be03596a41beb7",
+      "file_hashes": {
+        "event_log.py": "7026935be67ff0099c8ed4e6623c3f931f99d4e34004977f34d9943c328215db",
+        "tests/test_public.py": "2b3e7d6cf866e63655781b9bd10b56b07bb0100d3c30d901b1cbce4614107352"
+      },
+      "instruction": "Each event subscriber has an independent acknowledged sequence. Acknowledging one subscriber must not discard events still needed by another subscriber.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "event_log.py"
+      ],
+      "private_spec_sha256": "a7d0659bba59a29bf48e0e2adce44b0a3b9dd169cf9cc69454d4b324e90f699e"
+    },
+    {
+      "task_id": "idempotency-body",
+      "split": "heldout",
+      "family": "request-deduplication",
+      "tags": [],
+      "fixture_dir": "fixtures/idempotency-body",
+      "base_commit": "bd862c49fc57b40e8ac9bdf4548adcf750be274f",
+      "file_hashes": {
+        "request_cache.py": "3d9da2bec8a76de0817d08b9f4c8d6c101f20a716a8c95b454d9f477eb821394",
+        "tests/test_public.py": "b97e473cc632726a19e16e5fde590c366a66d6b904b1c9b94ca8af0aadfa7b5d"
+      },
+      "instruction": "Repeated idempotency keys return the original response only for the same semantic JSON body. Reusing a key with different content must raise a conflict.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "request_cache.py"
+      ],
+      "private_spec_sha256": "c73ce31b644bc894c5a770023bb6c6533bab19f5932a69f3c16b6982e3ebb489"
+    },
+    {
+      "task_id": "patch-preflight",
+      "split": "heldout",
+      "family": "multi-file-transactions",
+      "tags": [
+        "multi_file"
+      ],
+      "fixture_dir": "fixtures/patch-preflight",
+      "base_commit": "73b77c89cacb77c10ff1f7db50e3d74cdae6ec6b",
+      "file_hashes": {
+        "document_patch.py": "282e21b3e8b89543152bad970e36c4f5c1eae9f782fd388deff75a542be413cd",
+        "tests/test_public.py": "1678afffd24af1234f996e86e6914b1c32de4ae4466e4255a7e3e4371c2181ad"
+      },
+      "instruction": "A stale expected value in any file must reject the entire in-memory patch. Validate all preconditions before making any changes to the document map.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "document_patch.py"
+      ],
+      "private_spec_sha256": "c2c2514ecff9abcdfb96cd70e30e40159fbede13e45f4fae513b7b10b7f82c70"
+    },
+    {
+      "task_id": "cancelled-slot",
+      "split": "heldout",
+      "family": "async-resource-lifetime",
+      "tags": [],
+      "fixture_dir": "fixtures/cancelled-slot",
+      "base_commit": "c5105ebbff3e0bddf8c0d00b3f8bfc065a71f06f",
+      "file_hashes": {
+        "async_pool.py": "f0ef3db6f82fc63d2c317979d2431d50424636aae2e089b56932ebbfae5e779d",
+        "tests/test_public.py": "d4159fc1c3cba8223e832597e7962afa31cfde4527459754a65b4794518dd8a5"
+      },
+      "instruction": "Cancellation while processing a request must release the acquired concurrency slot. Successful operations and raised exceptions must retain their existing result behavior.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "async_pool.py"
+      ],
+      "private_spec_sha256": "7a0b2e5f138e99f6b9b241d3cd3fead8081e41c5c002a3a5bd3dfcf36d94f2bf"
+    },
+    {
+      "task_id": "deadline-clock",
+      "split": "heldout",
+      "family": "monotonic-deadlines",
+      "tags": [],
+      "fixture_dir": "fixtures/deadline-clock",
+      "base_commit": "20470c9764c415f68c7c486b4ec0567e7f12c59b",
+      "file_hashes": {
+        "deadline.py": "de84dc61d781e545bd5f431579e16319b468554b35c9aa2c32f4f75389229d0e",
+        "tests/test_public.py": "851b887b3dabd4f04bb3eea409e5bafda70673bfe4e053ec7f5159be60aa96f1"
+      },
+      "instruction": "A request deadline must use the same injected monotonic clock at creation and observation. Wall-clock corrections must not affect remaining time.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "deadline.py"
+      ],
+      "private_spec_sha256": "1d11e9c50e6c9d5e04598963920b0674b258fe269311766d54748444fbe9b3cb"
+    },
+    {
+      "task_id": "parallel-context",
+      "split": "heldout",
+      "family": "conversation-causality",
+      "tags": [],
+      "fixture_dir": "fixtures/parallel-context",
+      "base_commit": "2b70de38b16c11b35eedd87e15c39b428d5a7c14",
+      "file_hashes": {
+        "conversation.py": "82cc0a1f4a7c34aacd1271534b4c9210310dfb1b836e552d780d9bdde16fce3d",
+        "tests/test_public.py": "b0af91be254755404139e6a626d5ad65e6b805b7bf9d3a6a6f5101ec033420cc"
+      },
+      "instruction": "Keep the newest complete tool transaction in a compact transcript. A single assistant call batch can have several tool results; keep all of them and its assistant message.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "conversation.py"
+      ],
+      "private_spec_sha256": "1700c25fafb57475ef85cabeedc942929ec372afa3b5d7f4bf63332ba5b1c1d8"
+    },
+    {
+      "task_id": "nested-ranges",
+      "split": "heldout",
+      "family": "interval-union",
+      "tags": [],
+      "fixture_dir": "fixtures/nested-ranges",
+      "base_commit": "c707958abaaeac3588b85bb3fa6b1a6a57625be7",
+      "file_hashes": {
+        "ranges.py": "898fa37543d57eda2451970296c0ac5a068b300194fb1c59e9191e1e835c1154",
+        "tests/test_public.py": "9a0e9a02fc24c44296746bc9942f1b2fd67eb0c36cfe2e7a58a59bdbfdb530a0"
+      },
+      "instruction": "Merge overlapping and adjacent half-open source ranges without shortening an existing interval when a smaller range is nested inside it.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "ranges.py"
+      ],
+      "private_spec_sha256": "96554962be8de604d4fc500d1fa743f45c93fa787c8204bd3c360aa92182c95e"
+    },
+    {
+      "task_id": "line-reference",
+      "split": "heldout",
+      "family": "source-coordinate-contract",
+      "tags": [
+        "multi_file"
+      ],
+      "fixture_dir": "fixtures/line-reference",
+      "base_commit": "0884a9cf3a2d45c987caf625efbac644d6802432",
+      "file_hashes": {
+        "evidence_view.py": "40b9c4fbc7e10880cc52d5926415e501ef9ec05fd97f631b8b6f1b32a1f9b238",
+        "line_store.py": "b5193fb72fb774c0d72b01dd642b09893237202013664875a0834c39ba62b1a8",
+        "tests/test_public.py": "9e17faa4e4203ccd50d26ee2eeaa7b1d9f8f27689e683b33a948572832f5ebd5"
+      },
+      "instruction": "The evidence storage and view layers disagree about line coordinates. Use one-based inclusive line ranges throughout and ensure displayed coordinates match the exact returned UTF-8 text.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "evidence_view.py",
+        "line_store.py"
+      ],
+      "private_spec_sha256": "f23d5c8255aab6b2feb6e3be828c6b43df9c4af45620b61f9e059edca11e9e05"
+    },
+    {
+      "task_id": "unicode-lookup",
+      "split": "heldout",
+      "family": "caseless-text-search",
+      "tags": [],
+      "fixture_dir": "fixtures/unicode-lookup",
+      "base_commit": "ae4aea8c74610594c32689fd502367038ac9fc5c",
+      "file_hashes": {
+        "lookup.py": "3f5e2ef967a54a2928db4c965ceade8c5b616246f1e471ec9e3967730ed73c53",
+        "tests/test_public.py": "f98830cc426e99589022ce86ecbbada2e82b5e345ef9d41065f39477daaea1df"
+      },
+      "instruction": "Repository identifier lookup is Unicode caseless matching. Equivalent case-folded identifiers should match while preserving original spellings and source order in results.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "lookup.py"
+      ],
+      "private_spec_sha256": "ff46e2825ad8439ccb93cd8fe7f084e2e295249e8cc1f78f3eb543ff686f7175"
+    },
+    {
+      "task_id": "nested-symbols",
+      "split": "heldout",
+      "family": "syntax-tree-walking",
+      "tags": [],
+      "fixture_dir": "fixtures/nested-symbols",
+      "base_commit": "15078c6c2bb35262d471c5dcdff10487cd4c3d95",
+      "file_hashes": {
+        "symbols.py": "595ee8a9bba3d9cc3ea14afe4d0bd009a33443d1210803749572d273217c5201",
+        "tests/test_public.py": "669f238e1124c5123fdb1dd69eafcfbfaacc945e6709aa9db78dcebff1159e27"
+      },
+      "instruction": "The Python symbol browser must include nested functions, methods, async functions and classes. Return their declared names in source traversal order.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "symbols.py"
+      ],
+      "private_spec_sha256": "8932b4a3980f9573b5ea4b114e592b1436c2ca66260e9cdb38a23792a747992d"
+    },
+    {
+      "task_id": "terminal-usage",
+      "split": "heldout",
+      "family": "stream-finalization",
+      "tags": [],
+      "fixture_dir": "fixtures/terminal-usage",
+      "base_commit": "db212b6079fc962ca425874651582b9bdc475f51",
+      "file_hashes": {
+        "stream_reduce.py": "ff95668236ad4c6412961651761e30f1ea0e6ddf4883b326c5a5e683faa66ac0",
+        "tests/test_public.py": "caff94475f84b4c0920877232ab03bef2c1d2c3eb11a93296232a3c32e88adac"
+      },
+      "instruction": "A final provider event can contain usage along with a finish marker. Preserve that usage in the completed turn without appending events after termination.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "stream_reduce.py"
+      ],
+      "private_spec_sha256": "d4ae4839cf92967310b01b5d4fc6ffd994c526a0daf7ac75ba3a57df50c0e7a4"
+    },
+    {
+      "task_id": "retry-classification",
+      "split": "heldout",
+      "family": "failure-taxonomy",
+      "tags": [],
+      "fixture_dir": "fixtures/retry-classification",
+      "base_commit": "4f9ef4a5dd220b2c332f64e50717910933904880",
+      "file_hashes": {
+        "failures.py": "d2a0f7e777cdea931b25b36cf314bee4224626c1927b5468734cb43cb589b671",
+        "tests/test_public.py": "b2c9e7f087cd9f2e4c707a36f72bc935c7ed3b1571ec38ff49e0c8b23afc8b1d"
+      },
+      "instruction": "The gateway retries only timeout/conflict/rate-limit and transient gateway statuses: 408, 409, 429, 500, 502, 503 and 504. Authentication, validation and unsupported-operation errors must fail without retry.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "failures.py"
+      ],
+      "private_spec_sha256": "d92961575a55ffae85d497e6dcacef07d5fcac91d82a91279c1fec390b2f82a2"
+    },
+    {
+      "task_id": "explicit-overrides",
+      "split": "heldout",
+      "family": "configuration-precedence",
+      "tags": [
+        "multi_file"
+      ],
+      "fixture_dir": "fixtures/explicit-overrides",
+      "base_commit": "8d1aa13c6e5d12c3eab69835a69ee7c4da2c8937",
+      "file_hashes": {
+        "profiles.py": "3959c62efad713a5168c57a2bc8181beeb28d5d2baae70a7024add39359fde1b",
+        "retry_config.py": "2239200a8e5ad5185c04cd1d6921bd5c2ed64f80ae786570d2f5401e2bd14c0d",
+        "tests/test_public.py": "2b23dc8e2e7061c55e3ddeee641cadcd0ba3e9c9bd6ed7793f10006400c050b5"
+      },
+      "instruction": "Explicit false and zero overrides are meaningful. Preserve them in both profile merge and retry policy construction; use defaults only when a key is absent.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "retry_config.py",
+        "profiles.py"
+      ],
+      "private_spec_sha256": "cc34ea1e55d1a5eba42ef53a2a3689aa201cf81e48fdece4a82755099d9df8a0"
+    },
+    {
+      "task_id": "utf8-backpressure",
+      "split": "heldout",
+      "family": "byte-queue-accounting",
+      "tags": [
+        "multi_file"
+      ],
+      "fixture_dir": "fixtures/utf8-backpressure",
+      "base_commit": "c61296dd257d5e62adbba7b76a33e24013c7e4a3",
+      "file_hashes": {
+        "output_queue.py": "14597fa9ba209f61c49e9fb5e1384dd79d7b1a4c39bd15ae81f3ad252a891ee4",
+        "queue_size.py": "2396511d9b62590bdafe6b4389d0edcaa499b360850f5a466b5dfc327c0bc820",
+        "tests/test_public.py": "ece28278062cd31d757e1a473c161b5aee986e8f44a3204cc2beaa151b0a56ff"
+      },
+      "instruction": "The output queue capacity is measured in encoded UTF-8 bytes. Enqueue and drain must use the same accounting so multibyte output cannot exceed the bound or leave phantom capacity debt.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "output_queue.py",
+        "queue_size.py"
+      ],
+      "private_spec_sha256": "d2b9b7e107f202afcb7ed2bd4fa24a3a2daeb8ee8b071559e6ae81d11e7ec490"
+    },
+    {
+      "task_id": "expiry-offset",
+      "split": "heldout",
+      "family": "timezone-normalization",
+      "tags": [],
+      "fixture_dir": "fixtures/expiry-offset",
+      "base_commit": "782a3cf1839313795d2e27eb6cc022251b4865ee",
+      "file_hashes": {
+        "expiry.py": "06f8ba1a1380bd0435dbce832981c5922c275c89fcd5bfc38c992df5179bd04e",
+        "tests/test_public.py": "74de1bf47575ef032af6c909b05f06e7c6ab766aba902945983bfaf67ab66654"
+      },
+      "instruction": "Compare an ISO timestamp with an aware current time using the timestamp actual UTC instant. Reject naive timestamps; do not reinterpret an offset timestamp as if it were already UTC.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "expiry.py"
+      ],
+      "private_spec_sha256": "196fb2da236c79e425edc35d707bd9692774ac24c0e85cc6f54ea5a274ed062c"
+    },
+    {
+      "task_id": "failed-run-cost",
+      "split": "heldout",
+      "family": "evaluation-denominators",
+      "tags": [],
+      "fixture_dir": "fixtures/failed-run-cost",
+      "base_commit": "77e73147d3a361e6d95c553bb50ed49e8ab98349",
+      "file_hashes": {
+        "metrics.py": "9de13ab69e48252695bd4a86a3e6cc42aa721721d74a28cb6d7828c7f85fd766",
+        "tests/test_public.py": "6639bcfe4131aa619591ae4c8a10c42c776b8fe0d19294b48ac5b0f5ff03c509"
+      },
+      "instruction": "Report cost per successful trial using costs of all attempted trials, including failed trials. Return None when there are no successes; trial repetition does not remove failed-attempt spending.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "metrics.py"
+      ],
+      "private_spec_sha256": "4877e6c2d064115da7695405f17ecd6d7b08b16490d24d6e4c325ca1187da547"
+    },
+    {
+      "task_id": "latency-tail",
+      "split": "heldout",
+      "family": "distribution-statistics",
+      "tags": [],
+      "fixture_dir": "fixtures/latency-tail",
+      "base_commit": "993f146289fba79bbdaf85dc8b491f4d816752a8",
+      "file_hashes": {
+        "latency.py": "17ec2f6d51f2efe33c1d129a6ebca7c2306248342808430afffe6e971b56a710",
+        "tests/test_public.py": "e9c868e27ea6c9a24a0f1abbedfa3f6597906a7021dc5373e7d2a26954552046"
+      },
+      "instruction": "Use the nearest-rank percentile definition for p in (0, 1], without changing the input sequence. Small datasets and p=1 must be supported.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "latency.py"
+      ],
+      "private_spec_sha256": "202455d0bf45ba8975429f5ffba44c0c9f8a236664b92ed0de2f1527587de4f3"
+    },
+    {
+      "task_id": "unknown-charge",
+      "split": "heldout",
+      "family": "uncertain-cost-state",
+      "tags": [],
+      "fixture_dir": "fixtures/unknown-charge",
+      "base_commit": "8229df7dc9afbba5d36caae6e7881207d1a9906d",
+      "file_hashes": {
+        "reservation.py": "8cc27f52917636b29e49e877a3f4133cbdb3a2623d72d5d1e5d6ca40927b4c8a",
+        "tests/test_public.py": "00cd993cda0e29d009836c5c8f0edd48c8520563011f5c51fde3ac7b91fa3435"
+      },
+      "instruction": "After a provider interruption, absent usage must keep the original reservation. Only known actual cost can release unused budget; a zero actual cost is valid and differs from unknown.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "reservation.py"
+      ],
+      "private_spec_sha256": "3bffa17d2ac59ba71aeed2212f45b24720fc9d234e8877c91c7d5863807e36d5"
+    },
+    {
+      "task_id": "bounded-log-tail",
+      "split": "heldout",
+      "family": "large-log-processing",
+      "tags": [
+        "long_output"
+      ],
+      "fixture_dir": "fixtures/bounded-log-tail",
+      "base_commit": "d16de653ae8a013f1225b3d49475de50ea122212",
+      "file_hashes": {
+        "log_tail.py": "f82f057fc9e5829ff702a9e5025a8bf740decb9930d2052bf02b5b2b0819d6ff",
+        "sample.log": "60c125dcd4d348ad612cb61f9ca183bd2c5d60b77e2b988a88b90877c3f6b65c",
+        "tests/test_public.py": "fec364c22ce73b1f8c075208295f5c76631f6ffa51b1bd01349bf2150ba76169"
+      },
+      "instruction": "Extract the final N ERROR lines from a long runner log in chronological order. Informational lines must not displace earlier errors, and N=0 returns no lines.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "log_tail.py"
+      ],
+      "private_spec_sha256": "398cc39dc10a0033e2127634489477292d1a4712be16ca6f785e39671a6be8b1"
+    },
+    {
+      "task_id": "redirect-cycle",
+      "split": "heldout",
+      "family": "graph-cycle-termination",
+      "tags": [],
+      "fixture_dir": "fixtures/redirect-cycle",
+      "base_commit": "d7f9ae948ad5f5b1ea9b2bbe0c07700598ce23df",
+      "file_hashes": {
+        "aliases.py": "3f97ed1e56ed33ee3b1fe94ece33070c765fa204801cd40fe23ecbf5a0214084",
+        "tests/test_public.py": "a7cab62bc0643d849af41e9903c2a1611d295416f82db311c568a22ee08a63a3"
+      },
+      "instruction": "Resolve alias chains to their final destination and raise ValueError for cycles of any length. Track previously visited nodes without treating a legitimate chain as a cycle.",
+      "constraints": [
+        "Preserve the public API and existing public regression tests.",
+        "Do not modify tests or validation configuration."
+      ],
+      "allowed_patch_paths": [
+        "aliases.py"
+      ],
+      "private_spec_sha256": "e92b8b2df0f18ce57273a9440ecf84079d1bc45fe6796bbf030ca17af0a0a1a7"
+    }
+  ]
+}

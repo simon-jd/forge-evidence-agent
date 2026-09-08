@@ -1,0 +1,17 @@
+.venv/
+.env
+.env.*
+!.env.example
+.forge/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+results/private/
+evals/grader_private/
+
