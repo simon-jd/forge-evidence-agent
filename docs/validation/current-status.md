@@ -60,10 +60,16 @@ env FORGE_TEST_DATABASE_URL="$FORGE_DATABASE_URL" \
 
 独立审阅复现并推动修复了 partial usage 错结算、零测试假成功、运行时篡改回归、工件归属不一致、总时长上限失效；见 [审阅报告](../reviews/independent-review.md)。
 
+## GitHub Actions
+
+[远程 CI 34200373880](https://github.com/JDinSeattle/forge-evidence-agent/actions/runs/34200373880) 在源码提交 `e2d7e5e092183b92b5c8b30341ab74d76367a230` 上完成，两个 job 均为 success。原始任务元数据保存在 [remote-ci.json](remote-ci.json)，JUnit 为 [offline](remote-offline.xml) 和 [PostgreSQL/rootful development](remote-integration-rootful-dev.xml)。远程验收包含从 lock 安装、静态检查、全新数据库迁移往返、镜像构建和公共客户端演示。
+
+GitHub hosted runner 使用显式 rootful development daemon；该结果没有替代本地 rootless 验收。第一次运行的 OOM 测试观察到进程退出 137、Docker `OOMKilled=false`，未据此推断原因；最终验收直接断言内核 cgroup `oom_kill` 增量、64 MiB/零 swap、子进程 SIGKILL 与 observer 存活。修正后的测试在两种本地 daemon 及远程 CI 均通过。
+
 ## 尚未完成的外部验证
 
 - OpenAI、Anthropic 真实账号 smoke：当前未配置本地 provider 凭据，未发送付费请求。
 - 真实 B0–B3、固定强模型和 evidence guard 消融：0/540 planned trials。还需要实际模型 ID、冻结能力/价格与明确的实验总费用上限。见 [live-status.json](../../evals/live-status.json)。
-- 远程 CI：首次推送的离线 job 通过；集成 job 为 28 passed / 1 failed / 1 skipped，唯一失败是 Docker `OOMKilled` 元数据未置位（对应进程退出 137）。内核 cgroup 计数补验已在本地两种 daemon 通过，正在远程复跑。首轮记录：[Actions run 34199826740](https://github.com/JDinSeattle/forge-evidence-agent/actions/runs/34199826740)。
+
 
 没有模型修复率、成本改善百分比或 production-scale 声明。只读测试探针也不构成对同一 Python 解释器中任意恶意代码的密码学可信执行证明。

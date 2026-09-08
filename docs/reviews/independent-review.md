@@ -1,8 +1,8 @@
 # Forge 独立实现审阅
 
-日期：2026-09-07。审阅 Agent：`independent_review`。该 Agent 未参与产品实现；仅新增 `tests/review/test_independent_findings.py` 和本报告。修复由主开发 Agent 完成，复验由审阅 Agent 执行。
+初次审阅：2026-09-07；补充审阅：2026-09-08。审阅 Agent：`independent_review`。该 Agent 未参与产品实现；仅新增 `tests/review/test_independent_findings.py` 和本报告。修复由开发 Agent 完成。初次五条回归由审阅 Agent 亲自复验；补充集成验证由主开发 Agent 执行，证据归属在下文分别说明。
 
-审阅时项目尚无可解析的 Git HEAD。本文针对当时工作区内容；文末记录关键源码 hash，后续提交不应把本报告解释为对所有未来变更的认证。
+初次审阅时项目尚无可解析的 Git HEAD，文末保留当时关键源码 hash。2026-09-08 的补充源码审阅绑定提交 `04ce87db3bfb29c43b557723281c4e2fc375d35d`；后续变更不自动继承本报告的验收结论。
 
 ## 结论与检查范围
 
@@ -28,7 +28,7 @@
 
 复现使用安装的原生 Anthropic SDK 与 `httpx2.MockTransport`，不调用真实模型：发送 `message_start`，usage 为 input=10/output=1；随后返回大量文本，然后在最终 usage/`message_stop` 前 EOF。原实现把 input/output 都非空视为精确，reservation 状态变成 `settled`。测试配置下，原本预留 `$0.001010` 只计 `$0.000011`，释放 `$0.000999`，足以允许一个本不应被批准的新请求。这里的价格仅为可计算的 fixture，不是厂商实际报价。
 
-修复在非完成流的 attempt 中明确标记估计 usage；runtime 对非 completed sink payload 也保守处理。复验断言 reservation 不为 settled，后续请求不能使用被错误释放的额度。
+初次修复在非完成流的 attempt 中明确标记估计 usage；复验断言 reservation 不为 settled，后续请求不能使用被错误释放的额度。后续 `usage_final` 契约进一步区分中途计数与已经确认的最终 usage：没有最终计费证据的失败/取消仍保守占用；收到最终 usage、但工具参数校验失败的响应可以按已知费用结算，见补充审阅。
 
 测试：`test_interrupted_anthropic_usage_does_not_release_unknown_output_budget`。
 
@@ -74,10 +74,27 @@
 
 测试：`test_worker_observer_enforces_total_runtime_while_node_is_running`。
 
+## 2026-09-08 补充：原生参数错误反馈与有限升级
+
+此前开放项现已完成**独立源码审阅与主开发集成验证**，不再保留为未解决的实现缺口。本次未新增产品代码或扩大审阅范围。
+
+源码检查确认以下路径：
+
+- 原生 adapter 对已确认响应中的未声明工具、JSON/schema 错误使用 `invalid_tool_arguments`，与 HTTP 无效请求的 `invalid_request` 分开。反馈只包含已声明工具名和固定校验说明，不回显任意参数或未声明工具名称。
+- `Runtime._model_error` 为该错误增加总计数和连续计数、清除 native state，追加“该响应未执行任何工具”的校验反馈，然后回到 context。它没有把无效调用写成待执行工具，也不构造悬空 call/result 续接。
+- router 使用连续错误计数及冻结配置的阈值、升级次数、费用/调用预算决定是否升级；成功接受完整 turn 后清零连续参数错误计数。该路径是下一逻辑轮次的模型修复，不是对 HTTP 400 的自动传输重试。
+- `UsageUpdate.final` / attempt `usage_final` 保留计费终态语义。OpenAI completed 响应和 Anthropic 完成协议确认后的最终 usage 可以在随后工具 schema 校验失败时结算；中途 usage 与未确认流仍保留估计/未知占用。
+
+主开发 Agent 在真实 PostgreSQL 与专用 rootless Docker 上执行了 `tests/integration tests/review`，现有 [full-integration-junit.xml](../validation/full-integration-junit.xml) 记录 **33 tests、0 failures、0 errors、0 skipped，40.545 秒**。审阅 Agent 已读取该文件，确认其中 `test_native_invalid_arguments_receive_bounded_feedback_and_route` 通过，耗时 2.452 秒。
+
+该指定测试使用原生 OpenAI SDK 和 MockTransport 的固定协议响应，经实际 runtime/业务账本与 rootless 验证链路完成：两次无效参数只调用弱模型，之后升级一次；请求顺序为 weak、weak、strong、strong；两个无效响应均不执行工具；四次模型尝试全部记账；最终有效补丁通过独立验收。测试还断言参数错误计数为 2、升级事件为 1、只有后两轮存在工具执行。
+
+**证据边界：**上述 33 项由主开发 Agent 执行，不是审阅 Agent 亲跑。审阅 Agent 最初的指定测试尝试因子 Agent 旧 sandbox 无法连接本地 PostgreSQL而失败，异步合同测试也未正常完成；这些环境失败没有计入产品结果。补充审阅确认了脱敏反馈的源码实现，但没有额外声称测试覆盖了所有可能的敏感参数组合。该指定测试直接驱动 runtime stages，不单独证明 LangGraph checkpoint 重启；后者有另行的图恢复测试。整个路径使用合成 provider 响应，**没有调用真实模型 API，也没有验证实际模型的修复质量或升级收益**。
+
 ## 其他源码检查与尚未确认的范围
 
 - 已指出两个集成缺口：tree-sitter SymbolIndex 原先未接入 Agent 工具链；`.env` 的厂商 API key 原先未被 SDK 默认读取。开发者随后接入 `search_code(mode="symbol")`，并使用显式 SecretStr 配置注入 provider。这里确认了修复源码的存在；不能据此声称真实账号调用已成功。
-- 原生工具参数校验失败的路由还需关注：adapter 将 schema 错误归一为 invalid_request，runtime 原来直接结束该 run，而 invalid_tool_calls 只在 gate 增长。这会使“重复无效参数后升级”在真实 provider 上无法到达。该点已同步开发者；此版本报告未提供该分支的独立完整运行复验，不将其写成已验收能力。
+- 原生工具参数校验失败的反馈/路由缺口已关闭，依据是上述独立源码审阅与主开发 PG/rootless 集成验证。真实账号调用、实际模型连续错误行为与质量收益仍需 live 实验，不能由合成协议测试推断。
 - 代码中不存在发现后仍允许缺失 command receipt 直接重放的路径：执行器保留 job identity，缺原容器会进入 reconciliation；完整 patch after-state 才能复用。这个判断来自源码及既有测试检查，不代替完整 PostgreSQL/进程故障现场复验。
 - Rootless 复跑证明的是本报告三条实际 Docker 路径。CPU throttling、OOM、PID exhaustion、旧 lease 多 worker 交错等需引用各自专门测试，不能由 rootless socket 可用推断。
 - 30-task qualification 明确区分 fixture/reference validation 与模型质量。本审阅未执行两个真实 provider 的付费 smoke、B0–B3/strong-only 质量实验或 evidence_guard 开关消融；没有可报告的质量提升、成本下降或真实模型成功率。

@@ -220,5 +220,5 @@ artifact retention uses [GitHub's official upload-artifact action](https://githu
 All three action commit SHAs were additionally checked against GitHub's official
 tag-reference API on 2026-09-07; exact references are recorded in the public-client
 validation report.
-The workflow file is an implementation until a remote GitHub run verifies it;
-local test success alone is not a claimed green remote workflow.
+The workflow has now passed on GitHub: see [the recorded CI run](https://github.com/JDinSeattle/forge-evidence-agent/actions/runs/34200373880)
+and [current validation status](validation/current-status.md) for the verified source commit and artifacts.
