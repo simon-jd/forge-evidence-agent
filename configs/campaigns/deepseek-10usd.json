@@ -3,19 +3,56 @@
   "authorization_usd": "10.00",
   "run_config": "deepseek-pilot",
   "smoke_limit_each_usd": "0.20",
-  "smoke_models": ["deepseek-flash", "deepseek-v4-pro"],
-  "task_ids": [
-    "subscriber-acks", "idempotency-body", "patch-preflight", "cancelled-slot",
-    "parallel-context", "line-reference", "nested-symbols", "terminal-usage",
-    "explicit-overrides", "utf8-backpressure", "unknown-charge", "bounded-log-tail"
+  "smoke_models": [
+    "deepseek-flash",
+    "deepseek-v4-pro"
   ],
-  "conditions": ["B0", "B1", "B2", "B3", "strong_only", "B2_guard_off"],
+  "task_ids": [
+    "subscriber-acks",
+    "idempotency-body",
+    "patch-preflight",
+    "cancelled-slot",
+    "parallel-context",
+    "line-reference",
+    "nested-symbols",
+    "terminal-usage",
+    "explicit-overrides",
+    "utf8-backpressure",
+    "unknown-charge",
+    "bounded-log-tail"
+  ],
+  "conditions": [
+    "B0",
+    "B1",
+    "B2",
+    "B3",
+    "strong_only",
+    "B2_guard_off"
+  ],
   "repeats": 1,
   "seed": 1729,
   "evaluation_allocation_usd": "8.64",
-  "total_allocation_usd": "9.04",
-  "unallocated_margin_usd": "0.96",
+  "total_allocation_usd": "9.44",
+  "unallocated_margin_usd": "0.56",
   "pricing_source": "https://api-docs.deepseek.com/quick_start/pricing/",
   "price_basis": "upper_bound",
-  "selection_note": "Fixed before live results: 12 heldout diagnostic tasks covering execution, context, multi-module contracts, uncertain billing and long logs. One repeat is a budget-limited pilot, not the original 540-trial study."
+  "selection_note": "Fixed before live results: 12 heldout diagnostic tasks covering execution, context, multi-module contracts, uncertain billing and long logs. One repeat is a budget-limited pilot, not the original 540-trial study.",
+  "revision": 3,
+  "smoke_slot_ids": {
+    "deepseek-flash": "smoke-deepseek-flash-context32k-turn24",
+    "deepseek-v4-pro": "smoke-deepseek-v4-pro"
+  },
+  "historical_slots": {
+    "smoke-deepseek-flash": {
+      "config_hash": "5f88065bd29769efd98adde0036a05ac1f824eda27e8111fc5d5e343eb9da9b0",
+      "limit_usd": "0.20",
+      "kind": "smoke"
+    },
+    "smoke-deepseek-flash-context32k": {
+      "config_hash": "00be9a6ec3fd6f356a319f5bbdde4e76f0023200e3d8f0b160bad9b169eaf60c",
+      "limit_usd": "0.20",
+      "kind": "smoke"
+    }
+  },
+  "amendment_reason": "Second development-only amendment before all heldout trials: preserve the original 16K context failure and second smoke that spent 12 settled attempts and passed focused/full public tests but reached its attempt cap before finish. Increase only pending model-attempt caps from 12 to 24 while preserving every dollar/output/tool limit. Add exactly one distinct $0.20 Flash development smoke from original unallocated authorization. No old run is replayed or relabeled and no heldout result exists."
 }

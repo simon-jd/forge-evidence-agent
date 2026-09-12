@@ -58,13 +58,16 @@ def load_plan() -> tuple[CampaignPlan, dict[str, Any], dict[str, RunConfig], lis
     smoke_configs = {}
     slots = {}
     identifier = description["campaign_id"]
+    for slot_id, definition in description.get("historical_slots", {}).items():
+        slots[slot_id] = CampaignSlot.model_validate(definition)
     for model_id in description["smoke_models"]:
         smoke = config.model_copy(deep=True)
         smoke.models = [next(model for model in config.models if model.model_id == model_id)]
         smoke.initial_model, smoke.max_escalations = 0, 0
         smoke.budget.max_cost_usd = Decimal(description["smoke_limit_each_usd"])
         smoke_configs[model_id] = smoke
-        slots["smoke-" + model_id] = CampaignSlot(config_hash=canonical_hash(smoke),
+        slot_id = description.get("smoke_slot_ids", {}).get(model_id, "smoke-" + model_id)
+        slots[slot_id] = CampaignSlot(config_hash=canonical_hash(smoke),
                                                 limit_usd=smoke.budget.max_cost_usd, kind="smoke")
     for task_id in selected:
         for condition in conditions:
@@ -74,9 +77,35 @@ def load_plan() -> tuple[CampaignPlan, dict[str, Any], dict[str, RunConfig], lis
     plan = CampaignPlan(campaign_id=identifier, authorization_usd=Decimal("10"), slots=slots,
                         dataset_hash=canonical_hash(json.loads((ROOT / "evals/manifest.json").read_text())))
     allocated = sum((slot.limit_usd for slot in slots.values()), Decimal(0))
-    if allocated != Decimal("9.04") or allocated != Decimal(description["total_allocation_usd"]):
-        raise ValueError("This pilot must retain the reviewed USD 9.04 allocation")
+    if allocated != Decimal(description["total_allocation_usd"]):
+        raise ValueError("This pilot must retain its reviewed allocation")
     return plan, description, smoke_configs, conditions
+
+
+def validate_smoke(evidence: dict[str, Any], config: RunConfig, run_id: str | None = None) -> None:
+    """A reconciled bill alone does not certify that a development smoke passed."""
+    if (evidence.get("status") != "completed"
+            or evidence.get("verification", {}).get("status") != "verified"
+            or evidence.get("execution_mode") != "live"
+            or evidence.get("manifest", {}).get("config_hash") != canonical_hash(config)
+            or not evidence.get("source_unchanged")
+            or not evidence.get("receipts")
+            or not all(receipt.get("rootless") for receipt in evidence["receipts"])
+            or not evidence.get("run_id")
+            or (run_id is not None and evidence["run_id"] != run_id)):
+        raise CampaignRefused("A current-configuration smoke lacks matching independent verification")
+
+
+def check_resume(plan: CampaignPlan, ledger: CampaignLedger, resume: bool) -> None:
+    state = ledger.snapshot()
+    if state["halted"]:
+        raise CampaignRefused("Campaign is halted; inspect accounting before further work")
+    if any(row["state"] != "pending" for row in state["slots"].values()) and not resume:
+        raise CampaignRefused("Campaign has prior progress; reconcile it and explicitly resume the development gate")
+    if resume and (any(row["state"] in {"claimed", "uncertain"} for row in state["slots"].values())
+                   or any(plan.slots[key].kind == "evaluation" and row["state"] != "pending"
+                          for key, row in state["slots"].items())):
+        raise CampaignRefused("Only reconciled development progress can resume before any heldout trial starts")
 
 
 def provision_database(settings: Settings, name: str, env: dict[str, str]) -> Settings:
@@ -96,13 +125,12 @@ def provision_database(settings: Settings, name: str, env: dict[str, str]) -> Se
 
 async def execute(plan: CampaignPlan, description: dict[str, Any], smokes: dict[str, RunConfig],
                   conditions: list[ExperimentCondition], ledger: CampaignLedger, root: Path,
-                  *, image: str) -> None:
+                  *, image: str, resume: bool = False) -> None:
     settings = Settings()
     key = settings.deepseek_api_key
     if key is None or not key.get_secret_value():
         raise CampaignRefused("Set DEEPSEEK_API_KEY in the local .env; no paid request was sent")
-    if any(row["state"] != "pending" for row in ledger.snapshot()["slots"].values()):
-        raise CampaignRefused("Campaign already has paid progress. Inspect its original runs; never reset or replay it")
+    check_resume(plan, ledger, resume)
     # Reject an unsuitable daemon before reserving or contacting the model API.
     executor = DockerExecutor(settings.docker_host, allow_rootful=False)
     await asyncio.to_thread(executor._client)
@@ -135,8 +163,12 @@ async def execute(plan: CampaignPlan, description: dict[str, Any], smokes: dict[
     if settings.docker_host:
         env["FORGE_DOCKER_HOST"] = settings.docker_host
     for model_id, config in smokes.items():
-        slot = "smoke-" + model_id
+        slot = description.get("smoke_slot_ids", {}).get(model_id, "smoke-" + model_id)
         config_path, output = root / (slot + ".yaml"), root / (slot + ".json")
+        previous = ledger.snapshot()["slots"][slot]
+        if previous["state"] == "finished":
+            validate_smoke(json.loads(output.read_text()), config, previous.get("run_id"))
+            continue
         config_path.write_text(yaml.safe_dump({"execution_mode": "live", "run": config.model_dump(mode="json")}))
         ledger.claim(slot, canonical_hash(config))
         try:
@@ -148,6 +180,7 @@ async def execute(plan: CampaignPlan, description: dict[str, Any], smokes: dict[
                 await asyncio.to_thread(subprocess.run, argv, cwd=ROOT, env=env, check=True,
                                          timeout=700, stdout=log, stderr=subprocess.STDOUT)
             evidence = json.loads(output.read_text())
+            validate_smoke(evidence, config)
             ledger.attach_run(slot, evidence["run_id"])
             budget = BudgetManager(config.budget, evidence["budget"])
             ledger.settle(slot, budget.committed_usd, budget.cost_status, evidence=str(output))
@@ -206,17 +239,28 @@ async def execute(plan: CampaignPlan, description: dict[str, Any], smokes: dict[
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--execute", action="store_true", help="Perform the previously authorized paid campaign")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--execute", action="store_true", help="Start the previously authorized paid campaign")
+    modes.add_argument("--resume", action="store_true", help="Continue reconciled development smoke progress; never replay a claimed run")
+    modes.add_argument("--amend-plan", action="store_true", help="Record a reviewed pending-only development amendment; makes no model calls")
     parser.add_argument("--image", default="forge-runner:dev", help="Trusted local runner image, frozen before calls")
     args = parser.parse_args()
     plan, description, smokes, conditions = load_plan()
     root = ROOT / ".forge/campaigns" / plan.campaign_id
-    ledger = CampaignLedger(root / "ledger.json", plan)
+    path = root / "ledger.json"
+    if args.amend_plan:
+        previous = CampaignPlan.model_validate(json.loads(path.read_text())["plan"])
+        ledger = CampaignLedger(path, previous)
+        ledger.amend_plan(plan, description["amendment_reason"])
+    else:
+        ledger = CampaignLedger(path, plan)
     print(json.dumps({"campaign": plan.campaign_id, "runs": len(plan.slots),
-                      "authorization_usd": "10.00", "allocation_usd": "9.04",
-                      "ledger": str(ledger.path), "execute_requested": args.execute}), flush=True)
-    if args.execute:
-        asyncio.run(execute(plan, description, smokes, conditions, ledger, root, image=args.image))
+                      "authorization_usd": str(plan.authorization_usd),
+                      "allocation_usd": description["total_allocation_usd"],
+                      "ledger": str(ledger.path), "execute_requested": args.execute or args.resume}), flush=True)
+    if args.execute or args.resume:
+        asyncio.run(execute(plan, description, smokes, conditions, ledger, root, image=args.image,
+                            resume=args.resume))
 
 
 if __name__ == "__main__":

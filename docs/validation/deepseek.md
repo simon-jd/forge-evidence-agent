@@ -1,7 +1,7 @@
 # DeepSeek implementation evidence
 
 Checked 2026-09-11. These are offline model transports with real local execution
-where indicated. No paid DeepSeek request was sent; live quality is unmeasured.
+where indicated. This file records the pre-live offline baseline. The subsequent live campaign is tracked in [its status](../../evals/deepseek-live-status.json).
 
 | Check | Observed result | Evidence |
 | --- | --- | --- |

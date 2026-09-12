@@ -1,0 +1,50 @@
+[
+  {
+    "slot_id": "smoke-deepseek-flash",
+    "run_id": "fde03862f6104d32a9f239422c6a939d",
+    "model_id": "deepseek-flash",
+    "status": "budget_exhausted",
+    "verification_status": "unverified",
+    "context_input_budget": 16000,
+    "maximum_model_attempts": 12,
+    "model_attempts": 2,
+    "cost_upper_bound_usd": "0.001526112",
+    "config_hash": "5f88065bd29769efd98adde0036a05ac1f824eda27e8111fc5d5e343eb9da9b0"
+  },
+  {
+    "slot_id": "smoke-deepseek-flash-context32k",
+    "run_id": "31ddb30fe23d4900940481a7455a9c42",
+    "model_id": "deepseek-flash",
+    "status": "budget_exhausted",
+    "verification_status": "unverified",
+    "context_input_budget": 32000,
+    "maximum_model_attempts": 12,
+    "model_attempts": 12,
+    "cost_upper_bound_usd": "0.015467496",
+    "config_hash": "00be9a6ec3fd6f356a319f5bbdde4e76f0023200e3d8f0b160bad9b169eaf60c"
+  },
+  {
+    "slot_id": "smoke-deepseek-flash-context32k-turn24",
+    "run_id": "f976fd1c35ce475e9c52f008629d48ca",
+    "model_id": "deepseek-flash",
+    "status": "completed",
+    "verification_status": "verified",
+    "context_input_budget": 32000,
+    "maximum_model_attempts": 24,
+    "model_attempts": 10,
+    "cost_upper_bound_usd": "0.011548776",
+    "config_hash": "99cac2549190ba4516689b5f465aea393c578e6acdd46aa8c639923bd3615124"
+  },
+  {
+    "slot_id": "smoke-deepseek-v4-pro",
+    "run_id": "b97929eb6ac3480e8d2017667fc2cf83",
+    "model_id": "deepseek-v4-pro",
+    "status": "completed",
+    "verification_status": "verified",
+    "context_input_budget": 32000,
+    "maximum_model_attempts": 24,
+    "model_attempts": 12,
+    "cost_upper_bound_usd": "0.055941160",
+    "config_hash": "6deb76ff340d0ad6ae064cc95652dda0e06ce74f7fcd31c6750ea0c0cdd406f3"
+  }
+]

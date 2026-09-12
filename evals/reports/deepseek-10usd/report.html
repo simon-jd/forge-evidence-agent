@@ -1,0 +1,108 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Forge diagnostic evaluation</title>
+<style>body{font:15px/1.55 system-ui;margin:40px auto;max-width:1250px;padding:0 24px;color:#192b37;background:#f6f8fa}
+h1,h2{font-weight:650}table{border-collapse:collapse;width:100%;background:white;margin:24px 0;font-size:13px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #dce3e8}th{background:#e8eff2}pre{white-space:pre-wrap;background:#e8eff2;padding:20px}
+.note{border-left:4px solid #99743b;padding:14px;background:#fff8e8}</style>
+<h1>Forge · diagnostic evaluation</h1><p class="note">Read execution_kind before interpreting a score. Offline control-flow and reference-patch runs are not live-model results.</p>
+<h2>Conditions</h2><table><thead><tr><th>Condition</th><th>Tasks</th><th>Started</th><th>Not run</th><th>Within-budget successes</th><th>Infra failures</th><th>Exact $ / verified</th><th>Upper-bound $ / verified</th><th>Unknown cost trials</th></tr></thead><tbody><tr><td>B0</td><td>12</td><td>12</td><td>0</td><td>8</td><td>0</td><td>—</td><td>0.014089608</td><td>0</td></tr><tr><td>B1</td><td>12</td><td>12</td><td>0</td><td>9</td><td>0</td><td>—</td><td>—</td><td>1</td></tr><tr><td>B2</td><td>12</td><td>12</td><td>0</td><td>10</td><td>0</td><td>—</td><td>0.0109856508</td><td>0</td></tr><tr><td>B2_guard_off</td><td>12</td><td>12</td><td>0</td><td>10</td><td>0</td><td>—</td><td>0.0099973068</td><td>0</td></tr><tr><td>B3</td><td>12</td><td>12</td><td>0</td><td>10</td><td>0</td><td>—</td><td>0.0151473996</td><td>0</td></tr><tr><td>strong_only</td><td>12</td><td>12</td><td>0</td><td>4</td><td>0</td><td>—</td><td>—</td><td>4</td></tr></tbody></table><h2>Paired task comparisons</h2><pre>[
+  {
+    &quot;baseline&quot;: &quot;B0&quot;,
+    &quot;treatment&quot;: &quot;B1&quot;,
+    &quot;paired_tasks&quot;: 12,
+    &quot;task_mean_success_delta&quot;: 0.08333333333333333,
+    &quot;task_cluster_bootstrap_95_percent&quot;: [
+      -0.16666666666666666,
+      0.3333333333333333
+    ],
+    &quot;task_deltas&quot;: {
+      &quot;bounded-log-tail&quot;: 1.0,
+      &quot;cancelled-slot&quot;: 1.0,
+      &quot;explicit-overrides&quot;: 0.0,
+      &quot;idempotency-body&quot;: 0.0,
+      &quot;line-reference&quot;: 0.0,
+      &quot;nested-symbols&quot;: 0.0,
+      &quot;parallel-context&quot;: -1.0,
+      &quot;patch-preflight&quot;: 0.0,
+      &quot;subscriber-acks&quot;: 0.0,
+      &quot;terminal-usage&quot;: 0.0,
+      &quot;unknown-charge&quot;: 0.0,
+      &quot;utf8-backpressure&quot;: 0.0
+    },
+    &quot;note&quot;: &quot;Each task contributes one average across its repeats. Interval resamples tasks.&quot;
+  },
+  {
+    &quot;baseline&quot;: &quot;B1&quot;,
+    &quot;treatment&quot;: &quot;B2&quot;,
+    &quot;paired_tasks&quot;: 12,
+    &quot;task_mean_success_delta&quot;: 0.08333333333333333,
+    &quot;task_cluster_bootstrap_95_percent&quot;: [
+      0.0,
+      0.25
+    ],
+    &quot;task_deltas&quot;: {
+      &quot;bounded-log-tail&quot;: 0.0,
+      &quot;cancelled-slot&quot;: 0.0,
+      &quot;explicit-overrides&quot;: 0.0,
+      &quot;idempotency-body&quot;: 0.0,
+      &quot;line-reference&quot;: 0.0,
+      &quot;nested-symbols&quot;: 0.0,
+      &quot;parallel-context&quot;: 1.0,
+      &quot;patch-preflight&quot;: 0.0,
+      &quot;subscriber-acks&quot;: 0.0,
+      &quot;terminal-usage&quot;: 0.0,
+      &quot;unknown-charge&quot;: 0.0,
+      &quot;utf8-backpressure&quot;: 0.0
+    },
+    &quot;note&quot;: &quot;Each task contributes one average across its repeats. Interval resamples tasks.&quot;
+  },
+  {
+    &quot;baseline&quot;: &quot;strong_only&quot;,
+    &quot;treatment&quot;: &quot;B3&quot;,
+    &quot;paired_tasks&quot;: 12,
+    &quot;task_mean_success_delta&quot;: 0.5,
+    &quot;task_cluster_bootstrap_95_percent&quot;: [
+      0.16666666666666666,
+      0.75
+    ],
+    &quot;task_deltas&quot;: {
+      &quot;bounded-log-tail&quot;: 0.0,
+      &quot;cancelled-slot&quot;: 1.0,
+      &quot;explicit-overrides&quot;: 0.0,
+      &quot;idempotency-body&quot;: 0.0,
+      &quot;line-reference&quot;: 1.0,
+      &quot;nested-symbols&quot;: 0.0,
+      &quot;parallel-context&quot;: 1.0,
+      &quot;patch-preflight&quot;: 1.0,
+      &quot;subscriber-acks&quot;: 1.0,
+      &quot;terminal-usage&quot;: 0.0,
+      &quot;unknown-charge&quot;: 0.0,
+      &quot;utf8-backpressure&quot;: 1.0
+    },
+    &quot;note&quot;: &quot;Each task contributes one average across its repeats. Interval resamples tasks.&quot;
+  },
+  {
+    &quot;baseline&quot;: &quot;B2_guard_off&quot;,
+    &quot;treatment&quot;: &quot;B2&quot;,
+    &quot;paired_tasks&quot;: 12,
+    &quot;task_mean_success_delta&quot;: 0.0,
+    &quot;task_cluster_bootstrap_95_percent&quot;: [
+      0.0,
+      0.0
+    ],
+    &quot;task_deltas&quot;: {
+      &quot;bounded-log-tail&quot;: 0.0,
+      &quot;cancelled-slot&quot;: 0.0,
+      &quot;explicit-overrides&quot;: 0.0,
+      &quot;idempotency-body&quot;: 0.0,
+      &quot;line-reference&quot;: 0.0,
+      &quot;nested-symbols&quot;: 0.0,
+      &quot;parallel-context&quot;: 0.0,
+      &quot;patch-preflight&quot;: 0.0,
+      &quot;subscriber-acks&quot;: 0.0,
+      &quot;terminal-usage&quot;: 0.0,
+      &quot;unknown-charge&quot;: 0.0,
+      &quot;utf8-backpressure&quot;: 0.0
+    },
+    &quot;note&quot;: &quot;Each task contributes one average across its repeats. Interval resamples tasks.&quot;
+  }
+]</pre><h2>Interpretation</h2><ul><li>Repeats are observations of the same tasks, not independent tasks or best-of-N success.</li><li>Infrastructure failures are separate; both all-started and usable success denominators are shown.</li><li>Unknown cost is not zero; exact cost per success is unavailable if any started trial has uncertain cost.</li><li>Fake and reference-validation results test plumbing and fixtures, not model repair quality.</li><li>The diagnostic heldout split is small and is not an official SWE-bench score.</li></ul><h2>Every trial</h2><table><thead><tr><th>Task</th><th>Condition</th><th>Repeat</th><th>Execution</th><th>Status</th><th>Category</th><th>Reported $</th><th>Cost status</th></tr></thead><tbody><tr><td>line-reference</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.010837320</td><td>upper_bound</td></tr><tr><td>nested-symbols</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.011175096</td><td>upper_bound</td></tr><tr><td>idempotency-body</td><td>strong_only</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.044183920</td><td>upper_bound</td></tr><tr><td>patch-preflight</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>agent_failure</td><td>0.018245480</td><td>unknown</td></tr><tr><td>parallel-context</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.015141660</td><td>upper_bound</td></tr><tr><td>cancelled-slot</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.004700784</td><td>upper_bound</td></tr><tr><td>bounded-log-tail</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.014302404</td><td>upper_bound</td></tr><tr><td>subscriber-acks</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.012247656</td><td>upper_bound</td></tr><tr><td>idempotency-body</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.015628944</td><td>upper_bound</td></tr><tr><td>patch-preflight</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.005289552</td><td>upper_bound</td></tr><tr><td>subscriber-acks</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>agent_failure</td><td>0.031179720</td><td>upper_bound</td></tr><tr><td>line-reference</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.013380168</td><td>upper_bound</td></tr><tr><td>subscriber-acks</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.002808300</td><td>upper_bound</td></tr><tr><td>explicit-overrides</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.008613996</td><td>upper_bound</td></tr><tr><td>bounded-log-tail</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.012691392</td><td>upper_bound</td></tr><tr><td>bounded-log-tail</td><td>B3</td><td>0</td><td>live_model</td><td>failed</td><td>budget_exhausted</td><td>0.033630072</td><td>upper_bound</td></tr><tr><td>patch-preflight</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003031848</td><td>upper_bound</td></tr><tr><td>idempotency-body</td><td>B2</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.004894320</td><td>upper_bound</td></tr><tr><td>explicit-overrides</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003385644</td><td>upper_bound</td></tr><tr><td>bounded-log-tail</td><td>B0</td><td>0</td><td>live_model</td><td>failed</td><td>budget_exhausted</td><td>0.019336872</td><td>upper_bound</td></tr><tr><td>bounded-log-tail</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>budget_exhausted</td><td>0.077648208</td><td>upper_bound</td></tr><tr><td>line-reference</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.009513000</td><td>upper_bound</td></tr><tr><td>utf8-backpressure</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.006444516</td><td>upper_bound</td></tr><tr><td>patch-preflight</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.017158080</td><td>upper_bound</td></tr><tr><td>terminal-usage</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.004330344</td><td>upper_bound</td></tr><tr><td>nested-symbols</td><td>strong_only</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.025255032</td><td>upper_bound</td></tr><tr><td>parallel-context</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>agent_failure</td><td>0.001417152</td><td>unknown</td></tr><tr><td>utf8-backpressure</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.005425092</td><td>upper_bound</td></tr><tr><td>unknown-charge</td><td>B0</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.016194108</td><td>upper_bound</td></tr><tr><td>explicit-overrides</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003583944</td><td>upper_bound</td></tr><tr><td>terminal-usage</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.002683896</td><td>upper_bound</td></tr><tr><td>terminal-usage</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003093168</td><td>upper_bound</td></tr><tr><td>cancelled-slot</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.002692764</td><td>upper_bound</td></tr><tr><td>parallel-context</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.013226436</td><td>upper_bound</td></tr><tr><td>line-reference</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>agent_failure</td><td>0.028660456</td><td>unknown</td></tr><tr><td>idempotency-body</td><td>B0</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.003940536</td><td>upper_bound</td></tr><tr><td>nested-symbols</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.012897756</td><td>upper_bound</td></tr><tr><td>nested-symbols</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.009958596</td><td>upper_bound</td></tr><tr><td>subscriber-acks</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003222624</td><td>upper_bound</td></tr><tr><td>terminal-usage</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003961728</td><td>upper_bound</td></tr><tr><td>patch-preflight</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.014049144</td><td>upper_bound</td></tr><tr><td>bounded-log-tail</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.015338808</td><td>upper_bound</td></tr><tr><td>unknown-charge</td><td>B1</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.007536012</td><td>upper_bound</td></tr><tr><td>explicit-overrides</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.004265160</td><td>upper_bound</td></tr><tr><td>parallel-context</td><td>B2</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.006563508</td><td>upper_bound</td></tr><tr><td>terminal-usage</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003092820</td><td>upper_bound</td></tr><tr><td>cancelled-slot</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>budget_exhausted</td><td>0.083322888</td><td>upper_bound</td></tr><tr><td>parallel-context</td><td>B1</td><td>0</td><td>live_model</td><td>failed</td><td>agent_failure</td><td>0.000788040</td><td>unknown</td></tr><tr><td>unknown-charge</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.005470872</td><td>upper_bound</td></tr><tr><td>parallel-context</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.012443700</td><td>upper_bound</td></tr><tr><td>nested-symbols</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.009461292</td><td>upper_bound</td></tr><tr><td>subscriber-acks</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.002089008</td><td>upper_bound</td></tr><tr><td>line-reference</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.019452936</td><td>upper_bound</td></tr><tr><td>line-reference</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.010470672</td><td>upper_bound</td></tr><tr><td>unknown-charge</td><td>B3</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.014009556</td><td>upper_bound</td></tr><tr><td>utf8-backpressure</td><td>B0</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.007254060</td><td>upper_bound</td></tr><tr><td>idempotency-body</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.031379580</td><td>upper_bound</td></tr><tr><td>utf8-backpressure</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.005508192</td><td>upper_bound</td></tr><tr><td>explicit-overrides</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.005469096</td><td>upper_bound</td></tr><tr><td>patch-preflight</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.011278488</td><td>upper_bound</td></tr><tr><td>cancelled-slot</td><td>B0</td><td>0</td><td>live_model</td><td>failed</td><td>budget_exhausted</td><td>0.016465236</td><td>upper_bound</td></tr><tr><td>unknown-charge</td><td>B2</td><td>0</td><td>live_model</td><td>failed</td><td>budget_exhausted</td><td>0.021203124</td><td>upper_bound</td></tr><tr><td>utf8-backpressure</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.005480844</td><td>upper_bound</td></tr><tr><td>terminal-usage</td><td>strong_only</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.048449808</td><td>upper_bound</td></tr><tr><td>nested-symbols</td><td>B1</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.004021308</td><td>upper_bound</td></tr><tr><td>cancelled-slot</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.005333388</td><td>upper_bound</td></tr><tr><td>idempotency-body</td><td>B1</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.007423560</td><td>upper_bound</td></tr><tr><td>cancelled-slot</td><td>B3</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.004857780</td><td>upper_bound</td></tr><tr><td>utf8-backpressure</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>agent_failure</td><td>0.013385680</td><td>unknown</td></tr><tr><td>unknown-charge</td><td>strong_only</td><td>0</td><td>live_model</td><td>failed</td><td>target_failure</td><td>0.051429664</td><td>upper_bound</td></tr><tr><td>explicit-overrides</td><td>strong_only</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.021529200</td><td>upper_bound</td></tr><tr><td>subscriber-acks</td><td>B2_guard_off</td><td>0</td><td>live_model</td><td>verified</td><td>none</td><td>0.003983100</td><td>upper_bound</td></tr></tbody></table></html>

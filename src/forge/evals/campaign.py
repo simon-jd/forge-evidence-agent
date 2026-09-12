@@ -88,9 +88,70 @@ class CampaignLedger:
         with self._lock():
             data = self._read()
         committed = sum((Decimal(row["reserved_usd"]) for row in data["slots"].values()), Decimal(0))
+        frozen = CampaignPlan.model_validate(data["plan"])
         return {**data, "committed_upper_or_unknown_usd": str(committed),
-                "unallocated_margin_usd": str(self.plan.authorization_usd - sum(
-                    (slot.limit_usd for slot in self.plan.slots.values()), Decimal(0)))}
+                "unallocated_margin_usd": str(frozen.authorization_usd - sum(
+                    (slot.limit_usd for slot in frozen.slots.values()), Decimal(0)))}
+
+    def amend_plan(self, new_plan: CampaignPlan, reason: str) -> None:
+        """Revise pending configurations before evaluation, preserving paid history.
+
+        Existing slot limits and identities are immutable. Additional development
+        smoke slots may consume previously unallocated authorization, but cannot
+        reuse money released by finished runs to exceed the static allocation.
+        """
+        expected_hash = canonical_hash(self.plan)
+        if not isinstance(reason, str) or not reason.strip():
+            raise CampaignRefused("A plan amendment requires an explicit audit reason")
+        try:
+            # Revalidate copies made with model_copy(update=...), which bypasses
+            # Pydantic validators and could otherwise exceed authorization.
+            candidate = CampaignPlan.model_validate(new_plan.model_dump(mode="json"))
+        except ValueError as exc:
+            raise CampaignRefused("Amended plan must remain within the original authorization") from exc
+        with self._lock():
+            data = self._read()
+            if data["plan_hash"] != expected_hash:
+                raise CampaignRefused("Campaign plan changed concurrently; reopen the current revision")
+            current = self.plan
+            if (candidate.campaign_id != current.campaign_id
+                    or candidate.authorization_usd != current.authorization_usd
+                    or candidate.dataset_hash != current.dataset_hash):
+                raise CampaignRefused("Campaign identity, dataset and original authorization are immutable")
+            if data["halted"]:
+                raise CampaignRefused("A halted campaign cannot be amended")
+            if any(row["state"] not in {"pending", "finished"} for row in data["slots"].values()):
+                raise CampaignRefused("Reconcile every claimed or uncertain run before amending the plan")
+            if any(slot.kind == "evaluation" and data["slots"][key]["state"] != "pending"
+                   for key, slot in current.slots.items()):
+                raise CampaignRefused("Cannot amend a plan after any evaluation has started")
+            if not set(current.slots).issubset(candidate.slots):
+                raise CampaignRefused("An amendment cannot delete an existing campaign slot")
+            for key, original in current.slots.items():
+                replacement = candidate.slots[key]
+                if (replacement.kind != original.kind
+                        or str(replacement.limit_usd) != str(original.limit_usd)):
+                    raise CampaignRefused("Existing slot identities and limits are immutable")
+                if (data["slots"][key]["state"] != "pending"
+                        and replacement.model_dump(mode="json") != original.model_dump(mode="json")):
+                    raise CampaignRefused("A finished slot definition cannot be changed")
+            added = set(candidate.slots) - set(current.slots)
+            if any(candidate.slots[key].kind != "smoke" for key in added):
+                raise CampaignRefused("New amendment slots must be development smoke tests")
+            new_hash = canonical_hash(candidate)
+            if new_hash == data["plan_hash"]:
+                raise CampaignRefused("Amendment makes no change to the current plan")
+            revisions = data.setdefault("plan_revisions", [])
+            revisions.append({"revision": len(revisions) + 1,
+                              "previous_plan": copy.deepcopy(data["plan"]),
+                              "previous_plan_hash": data["plan_hash"],
+                              "new_plan_hash": new_hash, "reason": reason.strip(),
+                              "amended_at": datetime.now(UTC).isoformat()})
+            data["plan"], data["plan_hash"] = candidate.model_dump(mode="json"), new_hash
+            for key in sorted(added):
+                data["slots"][key] = {"state": "pending", "reserved_usd": "0"}
+            self._write(data)
+            self.plan = candidate
 
     def claim(self, slot_id: str, config_hash: str) -> None:
         with self._lock():

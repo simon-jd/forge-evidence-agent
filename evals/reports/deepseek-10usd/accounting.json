@@ -1,0 +1,23 @@
+{
+  "campaign_id": "deepseek-10usd-20260911-v1",
+  "revision": 3,
+  "plan_hash": "774104da31c343a48c400685683d568ac1d1509ac2d09b73c834c9d6fdfb4e90",
+  "authorization_usd": "10.00",
+  "static_allocation_usd": "9.44",
+  "unallocated_margin_usd": "0.56",
+  "settled_runs_tariff_upper_bound_usd": "1.030805844",
+  "unresolved_full_run_allocations_usd": "0.60",
+  "total_accounted_usd": "1.630805844",
+  "exact_campaign_cost_usd": null,
+  "unresolved_run_count": 5,
+  "smoke_count_including_failures": 4,
+  "development_failures_retained": 2,
+  "heldout_trials": 72,
+  "trial_outcomes": {
+    "verified": 51,
+    "failed": 21
+  },
+  "no_trial_replayed_or_replaced": true,
+  "original_540_trial_study_completed": false,
+  "note": "Peak-tariff usage upper bounds plus full allocations for unresolved runs; never an exact supplier invoice. Unknown allocations already include any settled partial requests within that run."
+}

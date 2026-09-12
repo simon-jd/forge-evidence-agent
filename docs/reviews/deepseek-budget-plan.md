@@ -80,3 +80,46 @@ DeepSeek 可用于本轮真实评测。用户已授权本轮全部 API 费用合
 追加的独立场景保留一个已完成且已对账的 earlier attempt：10,000 输入、1,000 输出，峰值价格上界 $0.0042。即使此前 attempt 均为 settled，暂停的整个 run 仍保留 $0.1158 未知占用，合计 $0.12；已报告的 token 与已知费用不丢失，也不重复计费。另一个场景确认完全没有 usage 时保留完整 $0.12。
 
 修复后复验命令：`timeout 30 .venv/bin/pytest tests/review/test_deepseek_budget.py -q --tb=short` → **4 passed in 0.24s**；该测试文件的 Ruff 检查通过。本轮未使用 PostgreSQL、Docker 或真实模型；所定位 P1 已关闭，预算 guard 的真实模型/实际账单验证仍应由 live campaign 单独出具。
+
+## 首次开发 smoke 失败后的修订设计审查
+
+主执行线程报告：首个 Flash 开发 smoke 完成两次模型请求后，由于 mandatory context 加输出预留为 16,147、超过配置的 16,000，在第三轮请求前停止。原 run 为 `fde03862f6104d32a9f239422c6a939d`，上界费用为 $0.001526112；其余 73 个 slot 尚未启动。以下是基于该执行证据的修订设计评审；审阅者未调用模型。
+
+可以保留原始失败记录后，将尚未启动的工作改为 32,000 的上下文预算，并新增**唯一一个** $0.20 的 Flash 开发 smoke。从原未分配的 $0.96 中划拨后，计划总分配为 **$9.24**，未分配余量为 **$0.76**，用户授权仍为 $10。这是开发 smoke 暴露的配置修复；不能将原失败删除、重标为成功，或将新增执行当成原 run 的重试。当前没有 heldout 结果，修改尚未启动的实验配置不构成挑选 heldout 成绩。
+
+修订必须通过显式账本操作，而非修改 JSON 后直接重跑：
+
+1. 先依据原 run 已终止和两个 attempt 最终 usage 的证据，结算原 slot，保留其失败原因、run ID 和原始日志；不能用“发出了取消请求”作为结算证明。
+2. 在与 claim 相同的文件锁中，对旧 `plan_hash` / revision 做比较；任何 heldout 已启动，或任意 slot 仍为 claimed / uncertain，均拒绝修改。
+3. 原 finished slot 的定义、run ID、结算与失败证据保持不变。所有原 slot 继续存在；授权额、dataset hash、原 slot 的种类和金额均不能变化。只允许改尚未启动 slot 的配置，以及增添事先指定的新开发 smoke。
+4. 历史记录保留旧完整 plan、旧 hash、新 hash、revision、修订原因及所依据的原开发 run ID；所有金额仍满足静态分配不超过授权。
+5. 恢复命令跳过已完成的旧失败开发 run，执行新 Flash 与原 Pro 的当前 32,000 配置 smoke。**必须检查两者明确的独立 verification=verified 证据及配置 hash，不能只检查 slot state=finished。** finished 只表示计费结算，也包括旧失败 smoke。
+
+实施后的独立验收应覆盖：
+
+| 场景 | 应有结果 |
+|---|---|
+| 一个已结算失败开发 smoke、其他任务 pending | 允许唯一指定修订，旧 run / 金额 / 失败证据保留 |
+| 任一 heldout 为 claimed、uncertain 或 finished | 拒绝修订，即使其费用为零 |
+| 任一开发 smoke 仍 claimed / uncertain | 拒绝修订，不能遗忘在途费用 |
+| 请求删除 slot、改授权额 / dataset / 旧 finished 配置 | 全部拒绝，账本不变 |
+| 两个调用使用相同旧 revision 同时修订 | 至多一个成功；另一个因旧版本不匹配而拒绝 |
+| 新修订重启后再次提交 | 不新增第二个 Flash slot、不重置已启动状态 |
+| 旧失败 smoke 已 finished、新 smoke 尚未 verified | 禁止启动 heldout |
+| 当前配置的新 Flash、Pro 均 verified | 仅启动原固定 heldout 清单，每 slot 最多一次 |
+
+修订实现已独立复核：`CampaignLedger.amend_plan` 在文件锁内校验旧计划、冻结身份和状态约束，写入历史记录后才更新内存中的 plan。独立新增 14 个参数化回归验证上述账本约束，包括原失败开发 run 的金额、证据及定义保留，违规修改不改变账本字节，零成本但已结束的 heldout 同样阻止修订，以及 stale handle / no-op 拒绝。
+
+连同此前 4 个计费与子进程回归，执行 `timeout 30 .venv/bin/pytest tests/review/test_deepseek_budget.py -q --tb=short` 得到 **18 passed in 0.32s**。此次测试没有运行真实模型、PostgreSQL 或 Docker。
+
+另外只读检查恢复 gate：`validate_smoke` 确认 live execution、completed、独立 verified、当前配置 hash、非空 run ID、源文件未变和 rootless receipts；复用已完成的当前 smoke 时还核对原 run ID。`check_resume` 拒绝未对账状态及任何已启动 heldout。历史失败 Flash 不在当前 smoke 映射内，因此不会被当作新的 32,000 配置成功证明。此处属于源码审阅，新的真实 smoke 和 heldout 成绩仍须由随后执行的 campaign 单独报告。
+
+## 第二次开发配置修订：模型请求次数上限
+
+主执行线程提供的新证据：32,000 上下文配置下的 Flash 开发 run `31ddb30fe23d4900940481a7455a9c42`，12 个 attempt 的 usage 均已 settled，上界费用 $0.015467496。模型曾产生多次 diff 格式/路径错误，随后成功应用补丁，完成 3 个 focused 测试和 6 个完整测试，但尚未发出 finish 时，被 12 次模型请求上限停止。该开发 run 仍应记录失败，不把测试已通过等同于完整 agent 流程成功；尚未启动 heldout。
+
+**接受在原账本中执行第二次显式开发修订：** 保留此前两个失败 Flash slot 及其原定义、run ID、日志和费用，将仅 pending 配置的 `max_model_turns` 从 12 改为 24，并新增唯一开发 slot `smoke-deepseek-flash-context32k-turn24`，上限 $0.20。未启动的 Pro 和所有 heldout 使用同一修订配置；上下文 32,000、每 run 美元上限、输出 4,096、工具次数 40 均保持不变。
+
+静态分配因此为 **$9.44**，用户 $10 授权中的未分配余量为 **$0.56**。24 是模型请求次数上限，不保证一定能请求 24 次；每个 attempt 仍须先通过持久美元预留，美元上限可以更早终止 run。两次旧开发 run 的上界费用合计 $0.016993608，必须继续留在整个 campaign 的费用统计中，不能因为新增开发 slot 而归零。
+
+该修订基于公开开发样例的可观测流程边界，没有查看或替换 heldout 成绩，也没有修饰模型产生的错误补丁。新的当前 Flash 与 Pro 均须完成独立 verified gate，之后才能启动原 heldout 矩阵；最终报告应展示两次开发失败及 heldout 启动前冻结的配置。沿用已验证的显式 amendment 机制，本次只补充设计审阅记录，不重复其既有测试，也不代表新的 live 执行已成功。

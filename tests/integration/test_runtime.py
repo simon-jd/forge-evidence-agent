@@ -524,3 +524,92 @@ async def test_deepseek_factory_reserves_full_wire_input_before_native_tool_cycl
         assert turns[1].request["native_state"]["provider"] == "deepseek"
         assert all(item.payload["provider"] == "deepseek" and item.payload["usage_final"] for item in attempts)
         assert [item.call["name"] for item in executed] == ["read_file", "apply_patch", "finish"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("usage_kind", ["complete", "partial", "missing"])
+async def test_deepseek_incomplete_generation_accounts_usage_without_executing_tools(
+    repository: Repository, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, usage_kind: str,
+) -> None:
+    """Terminal billing and successful tool completion are distinct runtime facts."""
+    run = await new_run(repository, tmp_path)
+    original = (Path(run["source"]) / "maths.py").read_bytes()
+    async with repository.locked(run["id"]) as (_, row):
+        config = RunConfig.model_validate(row.config)
+        spec = config.models[0].model_copy(update={
+            "provider": "deepseek", "model_id": "offline-deepseek-contract",
+            "input_usd_per_million": Decimal("0.30"),
+            "cached_input_usd_per_million": Decimal("0.006"),
+            "output_usd_per_million": Decimal("1.20"),
+            "price_version": "synthetic-tariff-ceiling", "price_basis": "upper_bound",
+        })
+        config.models = [spec]
+        config.context.input_budget = 64_000
+        config.sampling_config = {"reasoning": {"effort": "none"}}
+        row.config = config.model_dump(mode="json")
+        row.manifest = {"validation_mode": "offline_mock_transport"}
+    usage: dict[str, Any] | None = {
+        "input_tokens": 120, "output_tokens": 30, "total_tokens": 150,
+        "input_tokens_details": {"cached_tokens": 20},
+        "output_tokens_details": {"reasoning_tokens": 5},
+    }
+    if usage_kind == "partial":
+        usage.pop("output_tokens")
+    elif usage_kind == "missing":
+        usage = None
+    call = fix_turns(Path(run["source"]))[1]["complete_tool_calls"][0]
+    item = {"type": "function_call", "id": "incomplete-patch", "call_id": call["call_id"],
+            "name": call["name"], "arguments": json.dumps(call["arguments"]), "status": "completed"}
+    response = {"id": "synthetic-incomplete", "object": "response", "created_at": 1,
+                "status": "incomplete", "model": spec.model_id, "output": [item],
+                "incomplete_details": {"reason": "max_output_tokens"}, "usage": usage}
+    events = [
+        {"type": "response.output_item.added", "sequence_number": 0, "output_index": 0,
+         "item": {**item, "arguments": ""}},
+        {"type": "response.function_call_arguments.delta", "sequence_number": 1,
+         "output_index": 0, "item_id": item["id"], "delta": item["arguments"]},
+        {"type": "response.function_call_arguments.done", "sequence_number": 2,
+         "output_index": 0, "item_id": item["id"], "arguments": item["arguments"]},
+        {"type": "response.incomplete", "sequence_number": 3, "response": response},
+    ]
+    content = "".join(f"event: {event['type']}\ndata: {json.dumps(event)}\n\n" for event in events)
+    requests = 0
+
+    async def respond(req: httpx2.Request) -> httpx2.Response:
+        nonlocal requests
+        requests += 1
+        current = await repository.get_run(run["id"])
+        assert len(current["state"]["budget"]["reservations"]) == 1
+        assert req.url.host == "api.deepseek.com"
+        return httpx2.Response(200, headers={"content-type": "text/event-stream"}, content=content.encode())
+
+    def mock_sdk(**kwargs: Any) -> AsyncOpenAI:
+        return AsyncOpenAI(http_client=httpx2.AsyncClient(transport=httpx2.MockTransport(respond)), **kwargs)
+
+    monkeypatch.setattr("forge.providers.deepseek.AsyncOpenAI", mock_sdk)
+    claimed = await claim_specific(repository, run["id"])
+    agent = runtime(repository, tmp_path, claimed["lease_epoch"],
+                    settings=Settings(_env_file=None, DEEPSEEK_API_KEY="offline-incomplete-placeholder"))
+    await run_stages(agent, repository, run["id"])
+    final = await repository.get_run(run["id"])
+    assert final["status"] == "failed"
+    assert "response.incomplete" in final["state"]["stop_reason"]
+    assert requests == 1
+    assert (Path(run["source"]) / "maths.py").read_bytes() == original
+    manager = BudgetManager(config.budget, final["state"]["budget"])
+    reservation, = manager.state.reservations.values()
+    if usage_kind == "complete":
+        assert reservation.status == "settled"
+        assert manager.cost_status == "upper_bound"
+        assert manager.known_spend_usd == Decimal("0.00006612")
+    else:
+        assert reservation.status in {"unknown", "estimated"}
+        assert manager.cost_status == "unknown"
+        assert reservation.charged_usd >= reservation.reserved_usd > 0
+    async with repository.sessions() as session:
+        attempts = list(await session.scalars(select(ModelAttemptRow).where(ModelAttemptRow.run_id == run["id"])))
+        turns = list(await session.scalars(select(ModelTurnRow).where(ModelTurnRow.run_id == run["id"])))
+        executed = list(await session.scalars(select(ToolRow).where(ToolRow.run_id == run["id"])))
+        assert len(attempts) == len(turns) == 1 and not executed
+        assert attempts[0].status == turns[0].status == "failed"
+        assert attempts[0].payload["usage_final"] is (usage_kind == "complete")

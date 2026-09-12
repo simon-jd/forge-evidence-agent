@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import AsyncIterator, Callable
+from decimal import Decimal
 from typing import Any
 
 import httpx2
@@ -16,7 +17,9 @@ import pytest
 from anthropic import AsyncAnthropic
 from openai import AsyncOpenAI
 
+from forge.context.budget import BudgetManager
 from forge.domain.types import (
+    BudgetLimits,
     CanonicalMessage,
     CompactRequest,
     ModelCapabilities,
@@ -41,6 +44,7 @@ from forge.providers import (
     ProviderFailure,
     create_provider,
 )
+from forge.providers.deepseek import DeepSeekProvider
 
 CAPS = {"test-model": ModelCapabilities(parallel_tool_calls=True, native_compaction=True,
                                         structured_output=True)}
@@ -127,8 +131,10 @@ def anthropic_events(*, final: bool = True, usage: bool = True, calls: int = 2,
 
 def adapter(provider: str, handler: Callable[[httpx2.Request], httpx2.Response], **kwargs: Any) -> OpenAIProvider | AnthropicProvider:
     http_client = httpx2.AsyncClient(transport=httpx2.MockTransport(handler))
-    if provider == "openai":
+    if provider in {"openai", "deepseek"}:
         client = AsyncOpenAI(api_key="contract-placeholder", base_url="https://contract.invalid/v1", http_client=http_client, max_retries=9)
+        if provider == "deepseek":
+            return DeepSeekProvider(client=client, capabilities=CAPS, backoff_base_seconds=0, **kwargs)
         return OpenAIProvider(client=client, capabilities=CAPS, backoff_base_seconds=0, **kwargs)
     client_a = AsyncAnthropic(api_key="contract-placeholder", base_url="https://contract.invalid", http_client=http_client, max_retries=9)
     return AnthropicProvider(client=client_a, capabilities=CAPS, backoff_base_seconds=0, **kwargs)
@@ -521,6 +527,149 @@ async def test_undeclared_generated_tool_is_feedback_error_with_final_usage(prov
     assert attempts[-1]["usage_final"] is True
     assert attempts[-1]["usage"]["estimated"] is False
     assert not any(isinstance(event, (ToolCallReady, TurnCompleted)) for event in events)
+    await model.aclose()
+
+
+def terminal_frames(kind: str, usage: dict[str, Any] | None, *, status: str | None = None) -> list[dict[str, Any]]:
+    frames = openai_events(calls=1)
+    final = frames[-1]["response"]
+    final.update(status=status or kind.removeprefix("response."), usage=usage)
+    # Both providers support these declared function items; no encrypted fixture
+    # is needed to exercise the independent billing decision.
+    final["output"] = [item for item in final["output"] if item["type"] != "reasoning"]
+    frames[-1]["type"] = kind
+    if kind == "response.failed":
+        final["error"] = {"code": "server_error", "message": "Synthetic terminal failure"}
+    else:
+        final["incomplete_details"] = {"reason": "max_output_tokens"}
+    return frames
+
+
+def terminal_accounting_adapter(
+    provider: str, frames: list[dict[str, Any]], *, disconnect: bool = False,
+) -> tuple[Any, BudgetManager, list[dict[str, Any]], list[httpx2.Request]]:
+    budget = BudgetManager(BudgetLimits(max_cost_usd=Decimal("1")))
+    spec = ModelSpec(provider=provider, model_id="test-model",
+        input_usd_per_million=Decimal(".30"), cached_input_usd_per_million=Decimal(".006"),
+        output_usd_per_million=Decimal("1.20"), price_basis="upper_bound")
+    attempts: list[dict[str, Any]] = []
+    requests: list[httpx2.Request] = []
+
+    async def sink(payload: dict[str, Any]) -> None:
+        attempts.append(payload)
+        if payload["status"] == "started":
+            budget.reserve(payload["attempt_id"], spec, 2_000, 4_096)
+        else:
+            budget.reconcile(payload["attempt_id"], TokenUsage.model_validate(payload["usage"]))
+
+    def handler(req: httpx2.Request) -> httpx2.Response:
+        requests.append(req)
+        payload = encode_sse(frames)
+        if disconnect:
+            return httpx2.Response(200, stream=InterruptedBody(payload), headers={"content-type": "text/event-stream"})
+        return httpx2.Response(200, content=payload, headers={"content-type": "text/event-stream"})
+
+    return adapter(provider, handler, attempt_sink=sink), budget, attempts, requests
+
+
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+@pytest.mark.parametrize("kind", ["response.incomplete", "response.failed"])
+async def test_terminal_failure_with_complete_usage_settles_without_tools_or_retry(provider: str, kind: str) -> None:
+    usage = {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150,
+             "input_tokens_details": {"cached_tokens": 20},
+             "output_tokens_details": {"reasoning_tokens": 5}}
+    model, budget, attempts, requests = terminal_accounting_adapter(provider, terminal_frames(kind, usage))
+    stream = [event async for event in model.stream(request())]
+    assert isinstance(stream[-1], ProviderError) and stream[-1].code == "stream_interrupted"
+    assert stream[-1].retryable is False
+    assert not any(isinstance(event, (ToolCallReady, TurnCompleted)) for event in stream)
+    assert len(requests) == 1 and [row["status"] for row in attempts] == ["started", "failed"]
+    assert attempts[-1]["usage_final"] is True and attempts[-1]["usage"]["estimated"] is False
+    assert budget.cost_status == "upper_bound" and budget.known_spend_usd == Decimal(".00006612")
+    assert len(budget.state.reservations) == 1
+    assert next(iter(budget.state.reservations.values())).status == "settled"
+    await model.aclose()
+
+
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+@pytest.mark.parametrize("kind", ["response.incomplete", "response.failed"])
+@pytest.mark.parametrize("usage", [None, {"input_tokens": 120}, {"output_tokens": 30},
+                                    {"input_tokens_details": {"cached_tokens": 20}}])
+async def test_terminal_failure_without_complete_usage_keeps_reservation(
+    provider: str, kind: str, usage: dict[str, Any] | None,
+) -> None:
+    model, budget, attempts, requests = terminal_accounting_adapter(provider, terminal_frames(kind, usage))
+    stream = [event async for event in model.stream(request())]
+    assert isinstance(stream[-1], ProviderError) and stream[-1].code == "stream_interrupted"
+    assert len(requests) == 1 and attempts[-1]["usage_final"] is False
+    assert not any(isinstance(event, (ToolCallReady, TurnCompleted)) for event in stream)
+    reservation = next(iter(budget.state.reservations.values()))
+    assert budget.cost_status == "unknown" and budget.known_spend_usd == 0
+    assert reservation.charged_usd == reservation.reserved_usd and reservation.status != "settled"
+    await model.aclose()
+
+
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+@pytest.mark.parametrize("usage", [
+    {"input_tokens": -1, "output_tokens": 30},
+    {"input_tokens": 120, "output_tokens": 30, "input_tokens_details": {"cached_tokens": 121}},
+    {"input_tokens": 120, "output_tokens": 30, "input_tokens_details": {"cached_tokens": 100, "cache_write_tokens": 21}},
+    {"input_tokens": 120, "output_tokens": 30, "output_tokens_details": {"reasoning_tokens": 31}},
+    {"input_tokens": 120, "output_tokens": 30, "total_tokens": 151},
+])
+async def test_terminal_invalid_usage_never_releases_a_reservation(provider: str, usage: dict[str, Any]) -> None:
+    model, budget, attempts, requests = terminal_accounting_adapter(provider, terminal_frames("response.incomplete", usage))
+    stream = [event async for event in model.stream(request())]
+    assert isinstance(stream[-1], ProviderError)
+    assert not any(isinstance(event, (ToolCallReady, TurnCompleted)) for event in stream)
+    assert len(requests) == 1 and attempts[-1]["usage_final"] is False
+    reservation = next(iter(budget.state.reservations.values()))
+    assert reservation.charged_usd == reservation.reserved_usd and budget.cost_status == "unknown"
+    await model.aclose()
+
+
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+async def test_terminal_event_with_nonterminal_status_cannot_finalize_billing(provider: str) -> None:
+    frames = terminal_frames("response.incomplete", {"input_tokens": 120, "output_tokens": 30}, status="in_progress")
+    model, budget, attempts, requests = terminal_accounting_adapter(provider, frames)
+    stream = [event async for event in model.stream(request())]
+    assert isinstance(stream[-1], ProviderError) and stream[-1].code == "invalid_request"
+    assert len(requests) == 1 and attempts[-1]["usage_final"] is False
+    assert budget.cost_status == "unknown"
+    assert not any(isinstance(event, (ToolCallReady, TurnCompleted)) for event in stream)
+    await model.aclose()
+
+
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+async def test_terminal_cache_write_usage_with_unknown_tariff_remains_reserved(provider: str) -> None:
+    frames = terminal_frames("response.incomplete", {
+        "input_tokens": 120, "output_tokens": 30, "total_tokens": 150,
+        "input_tokens_details": {"cached_tokens": 20, "cache_write_tokens": 10},
+    })
+    model, budget, attempts, requests = terminal_accounting_adapter(provider, frames)
+    stream = [event async for event in model.stream(request())]
+    assert isinstance(stream[-1], ProviderError)
+    assert len(requests) == 1 and attempts[-1]["usage_final"] is True
+    assert attempts[-1]["usage"]["cache_write_tokens"] == 10
+    reservation = next(iter(budget.state.reservations.values()))
+    assert reservation.status == "unknown" and reservation.charged_usd == reservation.reserved_usd
+    assert budget.cost_status == "unknown" and budget.known_spend_usd == 0
+    await model.aclose()
+
+
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+@pytest.mark.parametrize("disconnect", [False, True])
+async def test_nonterminal_counters_and_closed_call_before_eof_do_not_finalize_billing(provider: str, disconnect: bool) -> None:
+    frames = openai_events(final=False, calls=1)
+    frames[0]["response"]["usage"] = {"input_tokens": 120, "output_tokens": 30}
+    model, budget, attempts, requests = terminal_accounting_adapter(provider, frames, disconnect=disconnect)
+    stream = [event async for event in model.stream(request())]
+    assert isinstance(stream[-1], ProviderError) and stream[-1].code == "stream_interrupted"
+    assert not any(isinstance(event, (ToolCallReady, TurnCompleted)) for event in stream)
+    assert len(requests) == 1 and attempts[-1]["usage_final"] is False
+    assert budget.cost_status == "unknown"
+    reservation = next(iter(budget.state.reservations.values()))
+    assert reservation.charged_usd == reservation.reserved_usd
     await model.aclose()
 
 

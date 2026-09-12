@@ -33,14 +33,14 @@ run:
   escalation_after_failures: 2
   budget:
     max_cost_usd: "0.12"
-    max_model_turns: 12
+    max_model_turns: 24
     max_tool_calls: 40
     max_repair_rounds: 1
     max_output_tokens: 4096
     max_runtime_seconds: 300
   context:
     strategy: evidence_compact
-    input_budget: 16000
+    input_budget: 32000
     compact_threshold: 0.7
     continuation_mode: portable
   require_write_approval: false

@@ -24,7 +24,7 @@ and expose `cost_upper_bound_usd`; complete usage does not make the tariff an
 exact invoice. Cached input and reasoning output are subsets, counted once.
 
 `configs/runs/deepseek-pilot.yaml` fixes reasoning effort to `none`, 4,096 maximum
-output tokens per attempt, 12 attempts including retries, 40 tool calls and at
+output tokens per attempt, 24 attempts including retries, 40 tool calls and at
 most one model escalation. B0/B1/B2 compare context handling, B3 enables bounded
 escalation, `strong_only` starts on Pro, and `B2_guard_off` removes the evidence
 guard under the B2 configuration. The task IDs, seed and ordering inputs are
@@ -34,10 +34,20 @@ frozen in `configs/campaigns/deepseek-10usd.json` before observing model results
 
 | Allocation | Runs | Per-run ceiling | Total |
 | --- | ---: | ---: | ---: |
-| Public Flash / Pro smoke | 2 | $0.20 | $0.40 |
+| Public Flash / Pro smoke, including two retained development failures | 4 | $0.20 | $0.80 |
 | 12 heldout tasks × 6 conditions | 72 | $0.12 | $8.64 |
-| Scheduled total | 74 | | **$9.04** |
-| Unallocated margin | | | **$0.96** |
+| Scheduled total | 76 | | **$9.44** |
+| Unallocated margin | | | **$0.56** |
+
+Two independently reviewed development amendments precede every heldout trial.
+The first Flash run stopped at 16,147 mandatory context bytes against a 16K
+allowance after two requests. The second used a 32K allowance and produced a
+passing patch, but exhausted 12 requests before `finish`. Both remain failed
+runs with complete usage; their combined peak-tariff cost upper bound is
+$0.016993608. Each amendment added one distinct $0.20 development slot from the
+original unallocated margin. The frozen heldout configuration uses 32K context
+and 24 maximum attempts with unchanged per-run dollar, output and tool limits.
+No heldout task was observed, replaced or rerun during these changes.
 
 Before enqueueing each run, the campaign claims its complete allocation in a
 private, atomically written, file-locked ledger. The runtime separately reserves
@@ -75,6 +85,14 @@ uv run --no-sync python -m forge.evals.deepseek_campaign
 uv run --no-sync python -m forge.evals.deepseek_campaign --execute
 ```
 
+For an existing campaign, `--execute` refuses prior progress. A reviewed
+`--amend-plan` operation preserves old plan/hash/history and every original slot,
+permits only pending configuration changes and new development smoke slots, and
+retains the original $10 authorization. It refuses unresolved calls or any
+already-started heldout trial. After original runs are reconciled, `--resume`
+continues only pending development work and checks current-configuration verified
+smoke evidence before admitting heldout trials. A settled bill is not a pass.
+
 Execution checks the rootless daemon, frozen image, private-spec hashes and the
 account's model listing before generation. Each smoke uses the public CLI/API,
 a separate worker, the public cursor task and independent read-only validation.
@@ -92,8 +110,7 @@ a new campaign ID or rerun the standalone live demo against this authorization.
 The [provider contract](providers/deepseek.md) and
 [independent budget review](reviews/deepseek-budget-plan.md) document offline
 verification. The machine-readable [live status](../evals/deepseek-live-status.json)
-records whether any paid trial has actually run. Until credentials are present,
-the correct quality result is **not measured**.
+records the completed 72-trial pilot: 51 independently verified, 21 failed, with five unresolved cost classifications. The [results and limitations](validation/deepseek-live.md), [sanitized report](../evals/reports/deepseek-10usd/report.html) and [independent audit](reviews/deepseek-live-review.md) preserve every outcome. Campaign accounting is $1.030805844 in settled peak-tariff upper bounds plus $0.60 of full unresolved run allocations, totaling $1.630805844 under the original authorization. No unused budget funded additional trials.
 
 One repeat and a preselected 12-task subset cannot establish robust gains or an
 industry benchmark score. Report per-condition verified repairs, failure counts,

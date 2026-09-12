@@ -1,0 +1,425 @@
+{
+  "conditions": {
+    "B0": {
+      "tasks": 12,
+      "planned_trials": 12,
+      "started_trials": 12,
+      "not_run_trials": 0,
+      "usable_trials": 12,
+      "infrastructure_failures": 0,
+      "verified_trials": 8,
+      "success_within_budget": 8,
+      "success_rate_all_started": 0.6666666666666666,
+      "success_rate_usable": 0.6666666666666666,
+      "cost_exact_usd": null,
+      "cost_upper_bound_usd": "0.112716864",
+      "upper_bound_cost_trials": 12,
+      "reported_cost_sum_usd": "0.112716864",
+      "unknown_cost_trials": 0,
+      "reserved_unknown_usd": "0",
+      "cost_per_verified_usd": null,
+      "cost_per_verified_upper_bound_usd": "0.014089608",
+      "latency_median_seconds": 33.76315019800677,
+      "latency_p95_seconds": 54.40809171501314,
+      "failures": {
+        "budget_exhausted": 2,
+        "target_failure": 2
+      },
+      "execution_kinds": {
+        "live_model": 12
+      },
+      "tool_calls": 229,
+      "compactions": 0,
+      "invalid_tool_calls": 0,
+      "input_tokens_reported": 561640,
+      "output_tokens_reported": 31858,
+      "cached_input_tokens_reported": 319744,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 12,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 12,
+      "phase_seconds": {
+        "execution": 25.02632236480713,
+        "run": 391.01861548423767,
+        "verification": 6.16216725402046
+      },
+      "phase_measurement_missing_trials": {
+        "model": 12,
+        "retrieval": 12,
+        "execution": 0,
+        "verification": 0
+      }
+    },
+    "B1": {
+      "tasks": 12,
+      "planned_trials": 12,
+      "started_trials": 12,
+      "not_run_trials": 0,
+      "usable_trials": 12,
+      "infrastructure_failures": 0,
+      "verified_trials": 9,
+      "success_within_budget": 9,
+      "success_rate_all_started": 0.75,
+      "success_rate_usable": 0.75,
+      "cost_exact_usd": null,
+      "cost_upper_bound_usd": null,
+      "upper_bound_cost_trials": 11,
+      "reported_cost_sum_usd": "0.090091464",
+      "unknown_cost_trials": 1,
+      "reserved_unknown_usd": "0.0079551",
+      "cost_per_verified_usd": null,
+      "cost_per_verified_upper_bound_usd": null,
+      "latency_median_seconds": 25.586832228989806,
+      "latency_p95_seconds": 56.232235512987245,
+      "failures": {
+        "target_failure": 2,
+        "agent_failure": 1
+      },
+      "execution_kinds": {
+        "live_model": 12
+      },
+      "tool_calls": 174,
+      "compactions": 0,
+      "invalid_tool_calls": 0,
+      "input_tokens_reported": 420174,
+      "output_tokens_reported": 29622,
+      "cached_input_tokens_reported": 226048,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 12,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 12,
+      "phase_seconds": {
+        "execution": 17.93577551841736,
+        "run": 322.8583343029022,
+        "verification": 6.981321915052831
+      },
+      "phase_measurement_missing_trials": {
+        "model": 12,
+        "retrieval": 12,
+        "execution": 0,
+        "verification": 0
+      }
+    },
+    "B2": {
+      "tasks": 12,
+      "planned_trials": 12,
+      "started_trials": 12,
+      "not_run_trials": 0,
+      "usable_trials": 12,
+      "infrastructure_failures": 0,
+      "verified_trials": 10,
+      "success_within_budget": 10,
+      "success_rate_all_started": 0.8333333333333334,
+      "success_rate_usable": 0.8333333333333334,
+      "cost_exact_usd": null,
+      "cost_upper_bound_usd": "0.109856508",
+      "upper_bound_cost_trials": 12,
+      "reported_cost_sum_usd": "0.109856508",
+      "unknown_cost_trials": 0,
+      "reserved_unknown_usd": "0",
+      "cost_per_verified_usd": null,
+      "cost_per_verified_upper_bound_usd": "0.0109856508",
+      "latency_median_seconds": 20.81708605348831,
+      "latency_p95_seconds": 51.28871488798177,
+      "failures": {
+        "target_failure": 1,
+        "budget_exhausted": 1
+      },
+      "execution_kinds": {
+        "live_model": 12
+      },
+      "tool_calls": 186,
+      "compactions": 32,
+      "invalid_tool_calls": 1,
+      "input_tokens_reported": 486293,
+      "output_tokens_reported": 26610,
+      "cached_input_tokens_reported": 231168,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 12,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 12,
+      "phase_seconds": {
+        "execution": 20.688146829605103,
+        "run": 322.7726626396179,
+        "verification": 7.1688059430452995
+      },
+      "phase_measurement_missing_trials": {
+        "model": 12,
+        "retrieval": 12,
+        "execution": 0,
+        "verification": 0
+      }
+    },
+    "B2_guard_off": {
+      "tasks": 12,
+      "planned_trials": 12,
+      "started_trials": 12,
+      "not_run_trials": 0,
+      "usable_trials": 12,
+      "infrastructure_failures": 0,
+      "verified_trials": 10,
+      "success_within_budget": 10,
+      "success_rate_all_started": 0.8333333333333334,
+      "success_rate_usable": 0.8333333333333334,
+      "cost_exact_usd": null,
+      "cost_upper_bound_usd": "0.099973068",
+      "upper_bound_cost_trials": 12,
+      "reported_cost_sum_usd": "0.099973068",
+      "unknown_cost_trials": 0,
+      "reserved_unknown_usd": "0",
+      "cost_per_verified_usd": null,
+      "cost_per_verified_upper_bound_usd": "0.0099973068",
+      "latency_median_seconds": 24.365947501530172,
+      "latency_p95_seconds": 37.67935186199611,
+      "failures": {
+        "target_failure": 2
+      },
+      "execution_kinds": {
+        "live_model": 12
+      },
+      "tool_calls": 163,
+      "compactions": 18,
+      "invalid_tool_calls": 0,
+      "input_tokens_reported": 415917,
+      "output_tokens_reported": 25619,
+      "cached_input_tokens_reported": 188928,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 12,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 12,
+      "phase_seconds": {
+        "execution": 19.89613103866577,
+        "run": 292.6188111305237,
+        "verification": 7.538564087939449
+      },
+      "phase_measurement_missing_trials": {
+        "model": 12,
+        "retrieval": 12,
+        "execution": 0,
+        "verification": 0
+      }
+    },
+    "B3": {
+      "tasks": 12,
+      "planned_trials": 12,
+      "started_trials": 12,
+      "not_run_trials": 0,
+      "usable_trials": 12,
+      "infrastructure_failures": 0,
+      "verified_trials": 10,
+      "success_within_budget": 10,
+      "success_rate_all_started": 0.8333333333333334,
+      "success_rate_usable": 0.8333333333333334,
+      "cost_exact_usd": null,
+      "cost_upper_bound_usd": "0.151473996",
+      "upper_bound_cost_trials": 12,
+      "reported_cost_sum_usd": "0.151473996",
+      "unknown_cost_trials": 0,
+      "reserved_unknown_usd": "0",
+      "cost_per_verified_usd": null,
+      "cost_per_verified_upper_bound_usd": "0.0151473996",
+      "latency_median_seconds": 29.10006425101892,
+      "latency_p95_seconds": 66.05203150300076,
+      "failures": {
+        "budget_exhausted": 1,
+        "target_failure": 1
+      },
+      "execution_kinds": {
+        "live_model": 12
+      },
+      "tool_calls": 200,
+      "compactions": 56,
+      "invalid_tool_calls": 1,
+      "input_tokens_reported": 592345,
+      "output_tokens_reported": 36064,
+      "cached_input_tokens_reported": 236416,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 12,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 12,
+      "phase_seconds": {
+        "execution": 27.173885822296143,
+        "run": 377.3814888000488,
+        "verification": 7.252454056055285
+      },
+      "phase_measurement_missing_trials": {
+        "model": 12,
+        "retrieval": 12,
+        "execution": 0,
+        "verification": 0
+      }
+    },
+    "strong_only": {
+      "tasks": 12,
+      "planned_trials": 12,
+      "started_trials": 12,
+      "not_run_trials": 0,
+      "usable_trials": 12,
+      "infrastructure_failures": 0,
+      "verified_trials": 4,
+      "success_within_budget": 4,
+      "success_rate_all_started": 0.3333333333333333,
+      "success_rate_usable": 0.3333333333333333,
+      "cost_exact_usd": null,
+      "cost_upper_bound_usd": null,
+      "upper_bound_cost_trials": 8,
+      "reported_cost_sum_usd": "0.444707208",
+      "unknown_cost_trials": 4,
+      "reserved_unknown_usd": "0.15378924",
+      "cost_per_verified_usd": null,
+      "cost_per_verified_upper_bound_usd": null,
+      "latency_median_seconds": 59.17869150851038,
+      "latency_p95_seconds": 94.96111318597104,
+      "failures": {
+        "agent_failure": 5,
+        "budget_exhausted": 2,
+        "target_failure": 1
+      },
+      "execution_kinds": {
+        "live_model": 12
+      },
+      "tool_calls": 160,
+      "compactions": 31,
+      "invalid_tool_calls": 1,
+      "input_tokens_reported": 492680,
+      "output_tokens_reported": 48626,
+      "cached_input_tokens_reported": 248064,
+      "input_usage_unknown_trials": 0,
+      "output_usage_unknown_trials": 0,
+      "stale_current_leaks": 0,
+      "stale_leak_measurement_missing_trials": 12,
+      "constraint_losses": 0,
+      "constraint_measurement_missing_trials": 12,
+      "phase_seconds": {
+        "execution": 13.582487344741821,
+        "run": 702.9306337833405,
+        "verification": 3.1748334360308945
+      },
+      "phase_measurement_missing_trials": {
+        "model": 12,
+        "retrieval": 12,
+        "execution": 4,
+        "verification": 0
+      }
+    }
+  },
+  "paired_comparisons": [
+    {
+      "baseline": "B0",
+      "treatment": "B1",
+      "paired_tasks": 12,
+      "task_mean_success_delta": 0.08333333333333333,
+      "task_cluster_bootstrap_95_percent": [
+        -0.16666666666666666,
+        0.3333333333333333
+      ],
+      "task_deltas": {
+        "bounded-log-tail": 1.0,
+        "cancelled-slot": 1.0,
+        "explicit-overrides": 0.0,
+        "idempotency-body": 0.0,
+        "line-reference": 0.0,
+        "nested-symbols": 0.0,
+        "parallel-context": -1.0,
+        "patch-preflight": 0.0,
+        "subscriber-acks": 0.0,
+        "terminal-usage": 0.0,
+        "unknown-charge": 0.0,
+        "utf8-backpressure": 0.0
+      },
+      "note": "Each task contributes one average across its repeats. Interval resamples tasks."
+    },
+    {
+      "baseline": "B1",
+      "treatment": "B2",
+      "paired_tasks": 12,
+      "task_mean_success_delta": 0.08333333333333333,
+      "task_cluster_bootstrap_95_percent": [
+        0.0,
+        0.25
+      ],
+      "task_deltas": {
+        "bounded-log-tail": 0.0,
+        "cancelled-slot": 0.0,
+        "explicit-overrides": 0.0,
+        "idempotency-body": 0.0,
+        "line-reference": 0.0,
+        "nested-symbols": 0.0,
+        "parallel-context": 1.0,
+        "patch-preflight": 0.0,
+        "subscriber-acks": 0.0,
+        "terminal-usage": 0.0,
+        "unknown-charge": 0.0,
+        "utf8-backpressure": 0.0
+      },
+      "note": "Each task contributes one average across its repeats. Interval resamples tasks."
+    },
+    {
+      "baseline": "strong_only",
+      "treatment": "B3",
+      "paired_tasks": 12,
+      "task_mean_success_delta": 0.5,
+      "task_cluster_bootstrap_95_percent": [
+        0.16666666666666666,
+        0.75
+      ],
+      "task_deltas": {
+        "bounded-log-tail": 0.0,
+        "cancelled-slot": 1.0,
+        "explicit-overrides": 0.0,
+        "idempotency-body": 0.0,
+        "line-reference": 1.0,
+        "nested-symbols": 0.0,
+        "parallel-context": 1.0,
+        "patch-preflight": 1.0,
+        "subscriber-acks": 1.0,
+        "terminal-usage": 0.0,
+        "unknown-charge": 0.0,
+        "utf8-backpressure": 1.0
+      },
+      "note": "Each task contributes one average across its repeats. Interval resamples tasks."
+    },
+    {
+      "baseline": "B2_guard_off",
+      "treatment": "B2",
+      "paired_tasks": 12,
+      "task_mean_success_delta": 0.0,
+      "task_cluster_bootstrap_95_percent": [
+        0.0,
+        0.0
+      ],
+      "task_deltas": {
+        "bounded-log-tail": 0.0,
+        "cancelled-slot": 0.0,
+        "explicit-overrides": 0.0,
+        "idempotency-body": 0.0,
+        "line-reference": 0.0,
+        "nested-symbols": 0.0,
+        "parallel-context": 0.0,
+        "patch-preflight": 0.0,
+        "subscriber-acks": 0.0,
+        "terminal-usage": 0.0,
+        "unknown-charge": 0.0,
+        "utf8-backpressure": 0.0
+      },
+      "note": "Each task contributes one average across its repeats. Interval resamples tasks."
+    }
+  ],
+  "interpretation": [
+    "Repeats are observations of the same tasks, not independent tasks or best-of-N success.",
+    "Infrastructure failures are separate; both all-started and usable success denominators are shown.",
+    "Unknown cost is not zero; exact cost per success is unavailable if any started trial has uncertain cost.",
+    "Fake and reference-validation results test plumbing and fixtures, not model repair quality.",
+    "The diagnostic heldout split is small and is not an official SWE-bench score."
+  ]
+}

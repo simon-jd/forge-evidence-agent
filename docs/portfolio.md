@@ -8,7 +8,7 @@
 
 可以用一个真实轨迹展示：模型读文件→补丁修改→旧证据失效→下一次 context 隐去旧事实→新验证证据绑定新 snapshot。指出差异来自输入上下文的可审计改变，而不是声称自己改造了模型内部推理。
 
-目前有真实的协议、隔离、恢复和数据集资格证据。真实模型修复率、成本收益、路由收益尚未测量，不写提升百分比。完成付费实验后，再从原始 JSONL 重算每成功任务成本、任务配对结果和失败归因。
+目前有真实的协议、隔离、恢复、数据集资格和 DeepSeek 付费 pilot 证据。12 个诊断任务 × 6 个条件 × 1 次重复共 72 次运行，51 次独立通过。B2 与 guard-off 均为 10/12；这次未证实 guard 的修复率收益。整个 campaign 保守计入预算 $1.630805844，包含 5 个费用待核对运行的完整分配；它不是精确账单。可以讨论负结果、统一输出上限对强模型的约束，以及费用完整性和响应完整性需要分开建模。见 [真实实验报告](validation/deepseek-live.md)。
 
 ## 系统工程主线
 
@@ -22,11 +22,13 @@ Independent review 还发现并推动修复了 partial usage 被当最终费用�
 
 ## 可使用的英文描述
 
-> Built a Python coding-agent workbench with native OpenAI/Anthropic streaming adapters, PostgreSQL-backed execution ledgers, LangGraph recovery, and rootless Docker tool execution.
+> Built a Python coding-agent workbench with native OpenAI, Anthropic, and DeepSeek streaming adapters, PostgreSQL-backed execution ledgers, LangGraph recovery, and rootless Docker tool execution.
 
 > Implemented versioned context evidence and independent patch verification; added fault-injection tests for interrupted model streams, persisted-response recovery, partial execution outcomes, and cancellation.
 
-这些描述只陈述已实现的系统。只有在对应实验真实完成后，才补充模型效果或成本数字。不要把固定脚本的端到端测试写成“自主解决真实用户任务”。
+> Evaluated six context/routing configurations across 12 diagnostic repair tasks using 72 live DeepSeek trials, with independent grading, immutable failure records, and a persistent campaign budget ledger.
+
+这些描述只陈述已实现并验证的工作。模型结果须带上任务数、配置和一次重复的限制；不要把固定脚本的端到端测试写成“自主解决真实用户任务”，也不要把不同配置混合的 51/72 当作某个产品配置的成功率。
 
 ## 尚可验证的研究假设
 

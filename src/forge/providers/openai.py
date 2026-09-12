@@ -76,6 +76,7 @@ def openai_usage(data: dict[str, Any] | None) -> TokenUsage:
     data = data or {}
     return TokenUsage(input_tokens=data.get("input_tokens"), output_tokens=data.get("output_tokens"),
                       cached_input_tokens=(data.get("input_tokens_details") or {}).get("cached_tokens"),
+                      cache_write_tokens=(data.get("input_tokens_details") or {}).get("cache_write_tokens"),
                       reasoning_tokens=(data.get("output_tokens_details") or {}).get("reasoning_tokens"))
 
 
@@ -149,7 +150,23 @@ class OpenAIProvider(BaseProvider):
                     break
                 elif kind in {"response.failed", "response.incomplete"}:
                     response = event.get("response") or {}
-                    yield UsageUpdate(usage=openai_usage(response.get("usage")))
+                    if response.get("status") != kind.removeprefix("response."):
+                        raise invalid("Terminal event disagrees with its response status.")
+                    usage = openai_usage(response.get("usage"))
+                    complete = usage.input_tokens is not None and usage.output_tokens is not None
+                    if (usage.input_tokens is not None
+                            and (usage.cached_input_tokens or 0) + (usage.cache_write_tokens or 0) > usage.input_tokens
+                            or usage.output_tokens is not None
+                            and (usage.reasoning_tokens or 0) > usage.output_tokens):
+                        raise invalid("Terminal usage has inconsistent token subsets.")
+                    total = (response.get("usage") or {}).get("total_tokens")
+                    if (usage.input_tokens is not None and usage.output_tokens is not None
+                            and total is not None and total != usage.input_tokens + usage.output_tokens):
+                        raise invalid("Terminal usage total disagrees with input and output counts.")
+                    # Terminal billing and executable output are independent.
+                    # A truncated/failed response can report its final token use;
+                    # a partial or absent usage object cannot release a reserve.
+                    yield UsageUpdate(usage=usage, final=complete)
                     error = response.get("error") or {}
                     if error.get("code") == "context_length_exceeded":
                         raise ProviderFailure(ProviderError(code="context_exceeded", message="Provider context limit exceeded."))
