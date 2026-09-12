@@ -12,6 +12,8 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("OPENAI_API_KEY", "FORGE_OPENAI_API_KEY"))
     anthropic_api_key: SecretStr | None = Field(default=None, exclude=True, repr=False,
         validation_alias=AliasChoices("ANTHROPIC_API_KEY", "FORGE_ANTHROPIC_API_KEY"))
+    deepseek_api_key: SecretStr | None = Field(default=None, exclude=True, repr=False,
+        validation_alias=AliasChoices("DEEPSEEK_API_KEY", "FORGE_DEEPSEEK_API_KEY"))
     owner_id: str = "local"
     data_dir: Path = Path(".forge")
     allowed_repo_roots: list[Path] = Field(default_factory=list)

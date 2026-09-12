@@ -23,6 +23,7 @@ from openai import AsyncOpenAI
 from sqlalchemy import select
 
 from forge.artifacts import LocalArtifactStore
+from forge.context.budget import BudgetManager
 from forge.domain.types import (
     ModelRequest,
     ModelTurn,
@@ -410,3 +411,116 @@ async def test_native_invalid_arguments_receive_bounded_feedback_and_route(repos
     async with repository.sessions() as session:
         executed = list(await session.scalars(select(ToolRow).where(ToolRow.run_id == run["id"])))
         assert len(executed) == 2 and all(item.iteration >= 2 for item in executed)
+
+
+@pytest.mark.asyncio
+async def test_deepseek_factory_reserves_full_wire_input_before_native_tool_cycle(
+    repository: Repository, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Production factory, PostgreSQL ledger and rootless verification; only HTTP is synthetic."""
+    run = await new_run(repository, tmp_path)
+    async with repository.locked(run["id"]) as (_, row):
+        config = RunConfig.model_validate(row.config)
+        spec = config.models[0].model_copy(update={
+            "provider": "deepseek", "model_id": "offline-deepseek-contract",
+            "input_usd_per_million": Decimal("0.30"),
+            "cached_input_usd_per_million": Decimal("0.006"),
+            "output_usd_per_million": Decimal("1.20"),
+            "price_version": "synthetic-tariff-ceiling", "price_basis": "upper_bound",
+        })
+        spec.capabilities.parallel_tool_calls = True
+        config.models = [spec]
+        config.context.continuation_mode = "provider_native"
+        config.context.input_budget = 64_000
+        config.context.compact_threshold = 0.95
+        config.sampling_config = {"reasoning": {"effort": "none"}}
+        row.config = config.model_dump(mode="json")
+        row.manifest = {"validation_mode": "offline_mock_transport"}
+    scripts = fix_turns(Path(run["source"]))
+    claimed = await claim_specific(repository, run["id"])
+    received: list[dict[str, Any]] = []
+    in_flight: list[dict[str, Any]] = []
+
+    async def respond(req: httpx2.Request) -> httpx2.Response:
+        iteration = len(received)
+        assert req.url.host == "api.deepseek.com" and req.url.path == "/responses"
+        assert req.headers["authorization"] == "Bearer offline-deepseek-runtime-placeholder"
+        body = json.loads(req.content)
+        received.append(body)
+        # Observe the committed reservation at the HTTP boundary. Merely making
+        # the right final ledger row would not prove that spend was reserved first.
+        current = await repository.get_run(run["id"])
+        reserved = [item for item in current["state"]["budget"]["reservations"].values()
+                    if item["status"] == "reserved"]
+        assert len(reserved) == 1
+        reservation = reserved[0]
+        wire_bytes = len(json.dumps(body, ensure_ascii=False, separators=(",", ":")).encode())
+        assert reservation["input_tokens"] >= wire_bytes + 1_024
+        assert Decimal(reservation["reserved_usd"]) > 0
+        assert reservation["charged_usd"] == reservation["reserved_usd"]
+        assert reservation["model"]["provider"] == "deepseek"
+        assert reservation["model"]["price_basis"] == "upper_bound"
+        in_flight.append({"reservation": reservation,
+                          "bundle_estimate": current["state"]["context"]["token_estimate"]})
+        call = scripts[iteration]["complete_tool_calls"][0]
+        item = {"type": "function_call", "id": f"deepseek-item-{iteration}",
+                "call_id": call["call_id"], "name": call["name"],
+                "arguments": json.dumps(call["arguments"]), "status": "completed"}
+        final = {"id": f"deepseek-response-{iteration}", "object": "response", "created_at": 1,
+                 "status": "completed", "model": "offline-deepseek-reported", "output": [item],
+                 "usage": {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150,
+                           "input_tokens_details": {"cached_tokens": 20},
+                           "output_tokens_details": {"reasoning_tokens": 5}}}
+        events = [
+            {"type": "response.output_item.added", "sequence_number": 0, "output_index": 0,
+             "item": {**item, "arguments": ""}},
+            {"type": "response.function_call_arguments.delta", "sequence_number": 1,
+             "output_index": 0, "item_id": item["id"], "delta": item["arguments"]},
+            {"type": "response.function_call_arguments.done", "sequence_number": 2,
+             "output_index": 0, "item_id": item["id"], "arguments": item["arguments"]},
+            {"type": "response.completed", "sequence_number": 3, "response": final},
+        ]
+        content = "".join(f"event: {event['type']}\ndata: {json.dumps(event)}\n\n" for event in events)
+        return httpx2.Response(200, headers={"content-type": "text/event-stream"}, content=content.encode())
+
+    def mock_sdk(**kwargs: Any) -> AsyncOpenAI:
+        client = httpx2.AsyncClient(transport=httpx2.MockTransport(respond))
+        return AsyncOpenAI(http_client=client, **kwargs)
+
+    monkeypatch.setattr("forge.providers.deepseek.AsyncOpenAI", mock_sdk)
+    settings = Settings(_env_file=None, DEEPSEEK_API_KEY="offline-deepseek-runtime-placeholder")
+    agent = runtime(repository, tmp_path, claimed["lease_epoch"], settings=settings)
+    assert agent.provider_factory is None  # Exercise runtime -> production factory -> adapter.
+    await run_stages(agent, repository, run["id"])
+    final = await repository.get_run(run["id"])
+    assert final["status"] == "completed", final["state"].get("stop_reason")
+    assert final["verification"]["status"] == "verified"
+    assert len(received) == 3
+    assert all(body["model"] == spec.model_id and body["reasoning"] == {"effort": "none"}
+               for body in received)
+    assert all(not {"store", "include", "previous_response_id", "parallel_tool_calls"} & set(body)
+               for body in received)
+    # The extra framing/schema allowance actually changes the reservation,
+    # catching a runtime that defines the adapter bound but never uses it.
+    assert in_flight[0]["reservation"]["input_tokens"] > in_flight[0]["bundle_estimate"]
+    second_input = received[1]["input"]
+    assert second_input[:len(received[0]["input"])] == received[0]["input"]
+    assert any(item.get("type") == "function_call" and item.get("call_id") == "read1"
+               for item in second_input)
+    assert any(item.get("type") == "function_call_output" and item.get("call_id") == "read1"
+               for item in second_input)
+    manager = BudgetManager(config.budget, final["state"]["budget"])
+    assert manager.cost_status == "upper_bound"
+    # 100 uncached + 20 cached input; 30 output already includes five reasoning
+    # tokens. Fixed synthetic usage makes double counting observable.
+    assert manager.known_spend_usd == Decimal("0.00019836")
+    assert all(item.status == "settled" for item in manager.state.reservations.values())
+    async with repository.sessions() as session:
+        turns = list(await session.scalars(select(ModelTurnRow).where(ModelTurnRow.run_id == run["id"]).order_by(ModelTurnRow.iteration)))
+        attempts = list(await session.scalars(select(ModelAttemptRow).where(ModelAttemptRow.run_id == run["id"])))
+        executed = list(await session.scalars(select(ToolRow).where(ToolRow.run_id == run["id"]).order_by(ToolRow.iteration)))
+        assert len(turns) == len(attempts) == len(executed) == 3
+        assert all(item.response and item.response["provider"] == "deepseek" for item in turns)
+        assert turns[1].request["native_state"]["provider"] == "deepseek"
+        assert all(item.payload["provider"] == "deepseek" and item.payload["usage_final"] for item in attempts)
+        assert [item.call["name"] for item in executed] == ["read_file", "apply_patch", "finish"]

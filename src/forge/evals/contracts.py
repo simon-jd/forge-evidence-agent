@@ -80,7 +80,7 @@ class AgentTrialOutcome(Contract):
     message: str = ""
     cost_usd: Decimal | None = Field(default=None, ge=0)
     reserved_unknown_usd: Decimal = Field(default=Decimal(0), ge=0)
-    cost_status: Literal["exact", "estimated", "unknown"] = "unknown"
+    cost_status: Literal["exact", "upper_bound", "estimated", "unknown"] = "unknown"
     usage: TokenUsage = Field(default_factory=TokenUsage)
     tool_calls: int = Field(default=0, ge=0)
     compactions: int = Field(default=0, ge=0)
@@ -125,7 +125,7 @@ class EvalTrial(Contract):
     success_within_budget: bool
     cost_usd: Decimal | None
     reserved_unknown_usd: Decimal
-    cost_status: Literal["exact", "estimated", "unknown"]
+    cost_status: Literal["exact", "upper_bound", "estimated", "unknown"]
     usage: TokenUsage
     latency_seconds: float
     phase_seconds: dict[str, float]

@@ -25,12 +25,17 @@ def create_provider(spec: ModelSpec, *, scripted_turns: Sequence[ModelTurn] | No
         return FakeProvider(scripted_turns, capabilities=capabilities, attempt_sink=attempt_sink)
     if scripted_turns is not None:
         raise ValueError("Scripted turns can only be used with the fake provider.")
+    if spec.provider == "deepseek":
+        from forge.providers.deepseek import DeepSeekProvider
+        return DeepSeekProvider(api_key=api_key, capabilities=capabilities, attempt_sink=attempt_sink)
     if spec.provider == "openai":
         if api_key is not None:
             from openai import AsyncOpenAI
             return OpenAIProvider(client=AsyncOpenAI(api_key=api_key, max_retries=0),
                                   capabilities=capabilities, attempt_sink=attempt_sink)
         return OpenAIProvider(capabilities=capabilities, attempt_sink=attempt_sink)
+    if spec.provider != "anthropic":
+        raise ValueError("No adapter registered for this provider")
     if api_key is not None:
         from anthropic import AsyncAnthropic
         return AnthropicProvider(client=AsyncAnthropic(api_key=api_key, max_retries=0),

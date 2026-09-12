@@ -22,7 +22,7 @@ flowchart LR
     API --> DB[(PostgreSQL ledger)]
     DB --> W[Worker + LangGraph]
     W --> C[Evidence / context / budget / routing]
-    C --> P[Native OpenAI / Anthropic]
+    C --> P[OpenAI / Anthropic / DeepSeek]
     W --> T[Seven repository tools]
     T --> D[Rootless Docker jobs]
     D --> A[Receipts and artifacts]
@@ -32,7 +32,7 @@ flowchart LR
 ```
 
 - Python 3.13, `uv.lock`, FastAPI/Pydantic, Typer/Rich.
-- Native OpenAI Responses and Anthropic Messages streams; explicit capabilities and native/portable continuation.
+- OpenAI Responses, Anthropic Messages and DeepSeek Responses streams; explicit capabilities and native/portable continuation.
 - SQLAlchemy/Alembic/PostgreSQL, fenced leases and monotonic persistent events; PostgreSQL LangGraph checkpoints.
 - Rootless Docker, non-root task users, no network, read-only root filesystem, CPU/memory/PID limits.
 - Ripgrep and tree-sitter Python symbols; structured compaction and bounded rule routing.
@@ -80,6 +80,8 @@ Ordinary CI does not call paid models. Rootless validation includes real OOM, pr
 The diagnostic corpus contains 30 distinct defects with a frozen 10-development/20-heldout split. All original cases fail their independent targets; all reference patches pass targets and original regressions in rootless containers. [Qualification report](evals/reports/qualification/report.html) proves the dataset's checks, not an LLM's capabilities. Published source is diagnostic material, not a secret or industry-standard benchmark.
 
 The harness supports B0/B1/B2/B3, a fixed strong-model comparator and the evidence-guard ablation, three repeats, task-paired analysis and a separately authorized experiment-wide cost ceiling. Private targets and reference patches are not published. [Evaluation guide](docs/evaluation.md) explains how to provision and run an experiment. **Live provider smoke and B0–B3 effectiveness measurements have not been run.**
+
+The [DeepSeek USD 10 pilot](docs/evaluation-deepseek.md) freezes 12 heldout tasks × 6 conditions × 1 repeat and two public smoke runs. Its persistent campaign ledger reserves USD 9.04 across all 74 slots, including failures, under one authorization. Peak tariffs are reported as cost upper bounds; unknown usage remains reserved. The adapter and accounting have offline tests; live execution still requires a local DeepSeek key.
 
 ## Boundaries
 

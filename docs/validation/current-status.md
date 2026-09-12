@@ -1,6 +1,12 @@
 # 实现与验证状态
 
-更新日期：2026-09-08。项目范围是 AI Engineer 方案，位于独立的 `forge/` 子目录；没有把另一份 SDE 方案的可选组件混入主实现。以下结果来自本项目实际执行，不代表公司经历或真实模型修复能力。
+更新日期：2026-09-11。项目范围是 AI Engineer 方案，位于独立的 `forge/` 子目录；没有把另一份 SDE 方案的可选组件混入主实现。以下结果来自本项目实际执行，不代表公司经历或真实模型修复能力。
+
+## DeepSeek 与累计预算补充（2026-09-11）
+
+已接入 DeepSeek Responses API、独立凭据、完整请求预留和峰值费率上界口径；实际 PostgreSQL/rootless Docker 集成使用模拟 HTTP 验证生产 factory 与 read → patch → finish → 独立验收。新一轮单元/协议 **202 passed**，完整集成/审阅 **42 passed**，均无跳过；合计 244 项不同测试。Ruff 通过，mypy 在 57 个文件中通过。详见 [DeepSeek 验证记录](deepseek.md)。下表保留 9 月 8 日历史验收，不与新一轮数量累加。
+
+用户已授权本轮 API 总额不超过 $10。固定 pilot 分配 $9.04，包含两个公开 smoke 和 72 个 heldout trial；余量 $0.96 不自动使用。持久总账、未知费用不释放与重复运行拒绝已实现。当前缺少本地 DeepSeek 凭据，全部 74 个 slot 仍 pending，付费请求为 0、支出为 $0、真实质量未测量。见 [可执行方案](../evaluation-deepseek.md) 与 [机器状态](../../evals/deepseek-live-status.json)。
 
 ## 当前可运行的结果
 
@@ -69,7 +75,7 @@ GitHub hosted runner 使用显式 rootful development daemon；该结果没有�
 ## 尚未完成的外部验证
 
 - OpenAI、Anthropic 真实账号 smoke：当前未配置本地 provider 凭据，未发送付费请求。
-- 真实 B0–B3、固定强模型和 evidence guard 消融：0/540 planned trials。还需要实际模型 ID、冻结能力/价格与明确的实验总费用上限。见 [live-status.json](../../evals/live-status.json)。
+- 原始完整实验仍为 0/540 planned trials；其额外预算尚未授权。新 DeepSeek 预算内 pilot 已冻结模型/能力/价格与 $10 总上限，当前为 0/72 trials、0/2 smoke，等待本地凭据。见 [原始计划](../../evals/live-status.json) 与 [DeepSeek 状态](../../evals/deepseek-live-status.json)。
 
 
 没有模型修复率、成本改善百分比或 production-scale 声明。只读测试探针也不构成对同一 Python 解释器中任意恶意代码的密码学可信执行证明。

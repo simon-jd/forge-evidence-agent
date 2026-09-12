@@ -108,6 +108,13 @@ class ServiceRunCallback:
         reservations = list(manager.state.reservations.values())
         unknown = [item for item in reservations if item.status != "settled"]
         usage_rows = [item.usage for item in reservations]
+        terminal_confirmed = run["status"] in TERMINAL
+        reserved_unknown = sum((item.charged_usd for item in unknown), Decimal(0))
+        if not terminal_confirmed:
+            # A cancellation request or a stale checkpoint cannot establish the
+            # final bill. Retain the run's remaining ceiling until reconciled.
+            reserved_unknown = max(reserved_unknown,
+                request.condition.config.budget.max_cost_usd - manager.known_spend_usd)
 
         def tokens(field: str) -> int | None:
             if any(usage is None or getattr(usage, field) is None for usage in usage_rows):
@@ -146,10 +153,11 @@ class ServiceRunCallback:
             "run_id": run["id"], "patch": patch, "status": status, "failure_category": category,
             "execution_kind": "live_model", "message": state.get("stop_reason", ""),
             "cost_usd": manager.known_spend_usd,
-            "reserved_unknown_usd": sum((item.charged_usd for item in unknown), Decimal(0)),
-            "cost_status": "unknown" if unknown else "exact",
+            "reserved_unknown_usd": reserved_unknown,
+            "cost_status": manager.cost_status if terminal_confirmed else "unknown",
             "usage": TokenUsage(input_tokens=tokens("input_tokens"), output_tokens=tokens("output_tokens"),
-                                cached_input_tokens=tokens("cached_input_tokens"), estimated=bool(unknown)),
+                                cached_input_tokens=tokens("cached_input_tokens"),
+                                estimated=bool(unknown) or not terminal_confirmed),
             "tool_calls": manager.state.tool_calls,
             "compactions": sum(event["kind"] == "context.compacted" for event in events),
             "invalid_tool_calls": state.get("invalid_tool_calls", 0),

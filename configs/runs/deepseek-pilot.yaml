@@ -1,0 +1,46 @@
+# Official list checked 2026-09-11. Peak tariffs are conservative USD ceilings,
+# never an assertion of exact invoice cost; off-peak tariffs may be lower.
+execution_mode: live
+run:
+  models:
+    - provider: deepseek
+      model_id: deepseek-flash
+      capabilities: &capabilities
+        tool_calling: true
+        parallel_tool_calls: true
+        structured_output: false
+        native_compaction: false
+        context_window: 1000000
+        max_output_tokens: 4096
+      input_usd_per_million: "0.30"
+      cached_input_usd_per_million: "0.006"
+      output_usd_per_million: "1.20"
+      price_basis: upper_bound
+      price_version: deepseek-official-2026-09-11-peak-v4.1-flash
+    - provider: deepseek
+      model_id: deepseek-v4-pro
+      capabilities: *capabilities
+      input_usd_per_million: "1.32"
+      cached_input_usd_per_million: "0.044"
+      output_usd_per_million: "3.96"
+      price_basis: upper_bound
+      price_version: deepseek-official-2026-09-11-peak-v4-pro-0813
+  sampling_config:
+    reasoning:
+      effort: none
+  initial_model: 0
+  max_escalations: 1
+  escalation_after_failures: 2
+  budget:
+    max_cost_usd: "0.12"
+    max_model_turns: 12
+    max_tool_calls: 40
+    max_repair_rounds: 1
+    max_output_tokens: 4096
+    max_runtime_seconds: 300
+  context:
+    strategy: evidence_compact
+    input_budget: 16000
+    compact_threshold: 0.7
+    continuation_mode: portable
+  require_write_approval: false

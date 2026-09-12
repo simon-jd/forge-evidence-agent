@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-09-11",
+  "campaign_id": "deepseek-10usd-20260911-v1",
+  "status": "not_run_missing_local_credential",
+  "authorized_total_usd": "10.00",
+  "planned_allocation_usd": "9.04",
+  "unallocated_margin_usd": "0.96",
+  "smoke_runs_planned": 2,
+  "evaluation_trials_planned": 72,
+  "paid_runs_started": 0,
+  "paid_requests_sent": 0,
+  "observed_spending_usd": "0.00",
+  "model_quality": "not_measured",
+  "price_basis": "upper_bound",
+  "original_540_trial_study_completed": false,
+  "raw_evidence": "Local ignored campaign directory; no live evidence exists yet."
+}

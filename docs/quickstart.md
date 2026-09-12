@@ -25,8 +25,8 @@ shell sourcing is required when invoking it from the repository root. Exported
 values can still override `.env`; do not source the complete `.env` as shell code,
 because JSON values such as allowed repository roots must retain their quotes.
 Python settings accept either `OPENAI_API_KEY` or
-`FORGE_OPENAI_API_KEY`, and the corresponding Anthropic names. The offline demo
-does not require either provider key.
+`FORGE_OPENAI_API_KEY`, and the corresponding Anthropic and DeepSeek names
+(`DEEPSEEK_API_KEY` / `FORGE_DEEPSEEK_API_KEY`). The offline demo needs no provider key.
 
 ## Start database and isolated execution
 
@@ -168,6 +168,10 @@ with the shown version. The demo does not approve on your behalf. A deadline or
 failure retains logs and requests cancellation of its own run.
 
 ## Separate evaluation worker
+
+For the fixed DeepSeek experiment authorized at USD 10, use the
+[cumulative-budget campaign command](evaluation-deepseek.md). It accounts for
+both provider smoke runs and all evaluation trials in one persistent ledger.
 
 Quality evaluation requires the authorized private evaluator store described in
 [evaluation.md](evaluation.md); a public clone does not contain private grader

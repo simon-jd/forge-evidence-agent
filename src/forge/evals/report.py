@@ -28,9 +28,12 @@ def summarize(trials: list[EvalTrial]) -> dict[str, Any]:
     for condition, rows in sorted(by_condition.items()):
         started = [row for row in rows if row.status != "not_run"]
         usable = [row for row in started if row.status != "infrastructure_failure"]
-        unknown = [row for row in started if row.cost_status != "exact" or row.cost_usd is None or row.reserved_unknown_usd > 0]
+        unknown = [row for row in started if row.cost_status not in {"exact", "upper_bound"}
+                   or row.cost_usd is None or row.reserved_unknown_usd > 0]
+        upper_bound = [row for row in started if row.cost_status == "upper_bound"]
         known_cost = sum((row.cost_usd or Decimal(0) for row in started), Decimal(0))
-        exact_cost = known_cost if not unknown else None
+        exact_cost = known_cost if not unknown and not upper_bound else None
+        ceiling_cost = known_cost if not unknown else None
         verified = sum(row.status == "verified" for row in started)
         succeeded = sum(row.success_within_budget for row in started)
         latencies = [row.latency_seconds for row in started]
@@ -42,9 +45,12 @@ def summarize(trials: list[EvalTrial]) -> dict[str, Any]:
             "success_rate_all_started": succeeded / len(started) if started else None,
             "success_rate_usable": succeeded / len(usable) if usable else None,
             "cost_exact_usd": str(exact_cost) if exact_cost is not None else None,
+            "cost_upper_bound_usd": str(ceiling_cost) if ceiling_cost is not None else None,
+            "upper_bound_cost_trials": len(upper_bound),
             "reported_cost_sum_usd": str(known_cost), "unknown_cost_trials": len(unknown),
             "reserved_unknown_usd": str(sum((row.reserved_unknown_usd for row in started), Decimal(0))),
             "cost_per_verified_usd": str(exact_cost / verified) if verified and exact_cost is not None else None,
+            "cost_per_verified_upper_bound_usd": str(ceiling_cost / verified) if verified and ceiling_cost is not None else None,
             "latency_median_seconds": statistics.median(latencies) if latencies else None,
             "latency_p95_seconds": _percentile(latencies, 0.95),
             "failures": dict(Counter(row.failure_category for row in started if row.failure_category != "none")),
@@ -128,7 +134,7 @@ def write_report(trials: list[EvalTrial], destination: Path) -> dict[str, Path]:
         "<tr>" + "".join(f"<td>{escape(value)}</td>" for value in [
             condition, values["tasks"], values["started_trials"], values["not_run_trials"],
             values["success_within_budget"], values["infrastructure_failures"],
-            values["cost_per_verified_usd"], values["unknown_cost_trials"],
+            values["cost_per_verified_usd"], values["cost_per_verified_upper_bound_usd"], values["unknown_cost_trials"],
         ]) + "</tr>" for condition, values in summary["conditions"].items()
     )
     trial_rows = "".join(
@@ -143,7 +149,7 @@ h1,h2{font-weight:650}table{border-collapse:collapse;width:100%;background:white
 th,td{text-align:left;padding:10px;border-bottom:1px solid #dce3e8}th{background:#e8eff2}pre{white-space:pre-wrap;background:#e8eff2;padding:20px}
 .note{border-left:4px solid #99743b;padding:14px;background:#fff8e8}</style>
 <h1>Forge · diagnostic evaluation</h1><p class="note">Read execution_kind before interpreting a score. Offline control-flow and reference-patch runs are not live-model results.</p>
-<h2>Conditions</h2><table><thead><tr><th>Condition</th><th>Tasks</th><th>Started</th><th>Not run</th><th>Within-budget successes</th><th>Infra failures</th><th>Exact $ / verified</th><th>Unknown cost trials</th></tr></thead><tbody>"""
+<h2>Conditions</h2><table><thead><tr><th>Condition</th><th>Tasks</th><th>Started</th><th>Not run</th><th>Within-budget successes</th><th>Infra failures</th><th>Exact $ / verified</th><th>Upper-bound $ / verified</th><th>Unknown cost trials</th></tr></thead><tbody>"""
     page += condition_rows + "</tbody></table><h2>Paired task comparisons</h2><pre>"
     page += escape(json.dumps(summary["paired_comparisons"], indent=2))
     page += "</pre><h2>Interpretation</h2><ul>" + "".join(f"<li>{escape(note)}</li>" for note in summary["interpretation"])

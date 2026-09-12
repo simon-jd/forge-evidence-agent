@@ -253,7 +253,8 @@ class Runtime:
             return self.provider_factory(spec, sink, iteration)
         scripts = run["manifest"].get("scripted_turns")
         scripted = [ModelTurn.model_validate(item) for item in scripts[iteration:]] if scripts is not None else None
-        secret = self.settings.openai_api_key if spec.provider == "openai" else self.settings.anthropic_api_key
+        secret = {"openai": self.settings.openai_api_key, "anthropic": self.settings.anthropic_api_key,
+                  "deepseek": self.settings.deepseek_api_key}.get(spec.provider)
         return create_provider(spec, scripted_turns=scripted if spec.provider == "fake" else None,
                                attempt_sink=sink, api_key=secret.get_secret_value() if secret else None)
 
@@ -301,6 +302,7 @@ class Runtime:
                 input_tokens = len(native.model_dump_json().encode()) + len(json.dumps([item.model_dump(mode="json") for item in messages]).encode()) + bundle.token_breakdown.get("tools", 0) + 512
         request = ModelRequest(run_id=run["id"], turn_id=f"{run['id']}:{iteration}", model_id=spec.model_id,
             canonical_messages=messages, native_state=native, tools=self._dispatcher(run).specs(),
+            sampling_config=config.sampling_config,
             output_limit=config.budget.max_output_tokens,
             deadline_seconds=min(120, config.budget.max_runtime_seconds))
         async with self.repo.sessions() as session:
@@ -325,6 +327,9 @@ class Runtime:
             else:
                 request.native_state, request.canonical_messages = None, bundle.messages
                 input_tokens = bundle.token_estimate
+        wire_bound = getattr(provider, "input_token_bound", None)
+        if wire_bound is not None:
+            input_tokens = max(input_tokens, wire_bound(request))
         async with self.repo.locked(run["id"], epoch=self.epoch) as (session, row):
             recorded = await session.get(ModelTurnRow, (run["id"], iteration))
             if recorded is None:

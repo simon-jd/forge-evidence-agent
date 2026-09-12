@@ -127,11 +127,11 @@ class EvalHarness:
                         status, category = "infrastructure_failure", "infrastructure"
                         grade = GradeResult(status="infrastructure_failure", category="infrastructure",
                                             sandbox="unknown", message=f"grader failed: {type(error).__name__}")
-                within_budget = (outcome.cost_status == "exact" and outcome.cost_usd is not None
+                within_budget = (outcome.cost_status in {"exact", "upper_bound"} and outcome.cost_usd is not None
                                  and outcome.reserved_unknown_usd == 0
                                  and outcome.cost_usd <= condition.config.budget.max_cost_usd)
                 if live and outcome.status != "not_run":
-                    if outcome.cost_status == "exact" and outcome.cost_usd is not None:
+                    if outcome.cost_status in {"exact", "upper_bound"} and outcome.cost_usd is not None:
                         committed += outcome.cost_usd + outcome.reserved_unknown_usd
                     else:
                         committed += max(condition.config.budget.max_cost_usd,

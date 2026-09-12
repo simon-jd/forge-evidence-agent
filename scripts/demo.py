@@ -168,7 +168,8 @@ def demonstrate(args: argparse.Namespace) -> dict[str, Any]:
     # Offline processes receive no model credentials, including those in .env;
     # environment values override .env entries read by Settings.
     if config["execution_mode"] == "offline_scripted":
-        for key in ("OPENAI_API_KEY", "FORGE_OPENAI_API_KEY", "ANTHROPIC_API_KEY", "FORGE_ANTHROPIC_API_KEY"):
+        for key in ("OPENAI_API_KEY", "FORGE_OPENAI_API_KEY", "ANTHROPIC_API_KEY", "FORGE_ANTHROPIC_API_KEY",
+                    "DEEPSEEK_API_KEY", "FORGE_DEEPSEEK_API_KEY"):
             env[key] = ""
     session_env = session / "client.env"
     session_env.write_text("\n".join(f"export {key}={shlex.quote(env[key])}" for key in ("FORGE_API_URL", "FORGE_API_TOKEN")) + "\n")

@@ -103,8 +103,18 @@ class BudgetManager:
 
     @property
     def known_spend_usd(self) -> Decimal:
+        # A settled amount uses complete token usage. Its price basis can still
+        # be a conservative tariff ceiling; inspect cost_status before reporting.
         return sum((item.charged_usd for item in self.state.reservations.values()
                     if item.status == "settled"), Decimal(0))
+
+    @property
+    def cost_status(self) -> Literal["exact", "upper_bound", "unknown"]:
+        if any(item.status != "settled" for item in self.state.reservations.values()):
+            return "unknown"
+        if any(item.model.price_basis == "upper_bound" for item in self.state.reservations.values()):
+            return "upper_bound"
+        return "exact"
 
     @property
     def remaining(self) -> Decimal:

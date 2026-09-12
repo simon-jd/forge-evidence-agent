@@ -239,7 +239,7 @@ class ContextBundle(Contract):
 
 
 class ModelSpec(Contract):
-    provider: Literal["fake", "openai", "anthropic"]
+    provider: Literal["fake", "openai", "anthropic", "deepseek"]
     model_id: str
     capabilities: ModelCapabilities = Field(default_factory=ModelCapabilities)
     input_usd_per_million: Decimal | None = Field(default=None, ge=0)
@@ -247,6 +247,7 @@ class ModelSpec(Contract):
     cached_input_usd_per_million: Decimal | None = Field(default=None, ge=0)
     cache_write_usd_per_million: Decimal | None = Field(default=None, ge=0)
     price_version: str = "unconfigured"
+    price_basis: Literal["exact", "upper_bound"] = "exact"
 
 
 class BudgetLimits(Contract):
@@ -259,6 +260,7 @@ class BudgetLimits(Contract):
 
 
 class RunConfig(Contract):
+    sampling_config: dict[str, Any] = Field(default_factory=dict)
     stalled_turn_limit: int = Field(default=4, ge=2, le=20)
     models: list[ModelSpec] = Field(default_factory=lambda: [
         ModelSpec(provider="fake", model_id="scripted", input_usd_per_million=Decimal(0),
