@@ -1,0 +1,461 @@
+{
+  "observed_at": "2026-09-13T19:06:56.204513+00:00",
+  "execution_mode": "offline_scripted",
+  "purpose": "public_client_control_flow",
+  "model_quality_claim": false,
+  "run_id": "da6a78f22d9342e0974ad9b99734be9a",
+  "base_commit": "7e58174eb967b3a1797eb524a98177cf0be2ba4c",
+  "status": "completed",
+  "verification": {
+    "checks": {
+      "target": {
+        "passed": true,
+        "record": {
+          "nonce": "f90f8e123a8bcd6e051ef557f881fdd81d727125c268e5d9e369d047d02f8ddb",
+          "errors": 0,
+          "skipped": 0,
+          "version": 1,
+          "executed": [
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "failures": 0,
+          "collected": [
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "exit_code": 0,
+          "framework": "unittest",
+          "expected_failures": 0,
+          "unexpected_successes": 0
+        },
+        "complete": true,
+        "supported": true
+      },
+      "regression": {
+        "passed": true,
+        "record": {
+          "nonce": "7cf5894036bcd6c114905e28afc211075c61c15d855a9bbed9b433cec2e6c11f",
+          "errors": 0,
+          "skipped": 0,
+          "version": 1,
+          "executed": [
+            "test_cursor.PageContractTests.test_cursor_roundtrip",
+            "test_cursor.PageContractTests.test_empty_and_bounded_page_size",
+            "test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload",
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "failures": 0,
+          "collected": [
+            "test_cursor.PageContractTests.test_cursor_roundtrip",
+            "test_cursor.PageContractTests.test_empty_and_bounded_page_size",
+            "test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload",
+            "test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive",
+            "test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate",
+            "test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond"
+          ],
+          "exit_code": 0,
+          "framework": "unittest",
+          "expected_failures": 0,
+          "unexpected_successes": 0
+        },
+        "complete": true,
+        "supported": true
+      },
+      "workspace_unchanged": true
+    },
+    "status": "verified",
+    "summary": "regression=0; target=0; validation_workspace_unchanged=True; regression_completion=True; target_completion=True\nFORGE_TEST_COMPLETION={\"collected\": [\"test_cursor.PageContractTests.test_cursor_roundtrip\", \"test_cursor.PageContractTests.test_empty_and_bounded_page_size\", \"test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload\", \"test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive\", \"test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate\", \"test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond\"], \"errors\": 0, \"executed\": [\"test_cursor.PageContractTests.test_cursor_roundtrip\", \"test_cursor.PageContractTests.test_empty_and_bounded_page_size\", \"test_cursor.PageContractTests.test_first_page_sorts_full_key_and_preserves_payload\", \"test_cursor.ResumeCursorTests.test_complete_cursor_boundary_is_exclusive\", \"test_cursor.ResumeCursorTests.test_repeated_small_pages_neither_drop_nor_duplicate\", \"test_cursor.ResumeCursorTests.test_resume_keeps_remaining_events_at_same_millisecond\"], \"exit_code\": 0, \"expected_failures\": 0, \"failures\": 0, \"framework\": \"unittest\", \"nonce\": \"7cf5894036bcd6c114905e28afc211075c61c15d855a9bbed9b433cec2e6c11f\", \"skipped\": 0, \"unexpected_successes\": 0, \"version\": 1}\n......\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n",
+    "artifact_refs": [
+      "5d020a81e8074503906d4c3b133980a1",
+      "c451904d62b94649adee83f643306d9b",
+      "4722bffba17e4f218a3202a401e23dc7"
+    ],
+    "final_exit_code": 0,
+    "target_exit_code": 0,
+    "baseline_exit_code": 1
+  },
+  "budget": {
+    "started_at": "2026-09-13T19:06:50.308174Z",
+    "tool_calls": 4,
+    "reservations": {
+      "9cdedf00-161b-46d7-9590-5f586e6978c7": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "price_basis": "exact",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "9cdedf00-161b-46d7-9590-5f586e6978c7",
+        "charged_usd": "0",
+        "input_tokens": 9613,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      },
+      "a8f6e2be-6085-41c6-9fb6-c23d84adc426": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "price_basis": "exact",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "a8f6e2be-6085-41c6-9fb6-c23d84adc426",
+        "charged_usd": "0",
+        "input_tokens": 7844,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      },
+      "ab688405-14a8-42d3-9e6a-211c2f377dfc": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "price_basis": "exact",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "ab688405-14a8-42d3-9e6a-211c2f377dfc",
+        "charged_usd": "0",
+        "input_tokens": 10865,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      },
+      "c85096ed-8445-45b8-92c9-440e875451b5": {
+        "model": {
+          "model_id": "scripted",
+          "provider": "fake",
+          "price_basis": "exact",
+          "capabilities": {
+            "tool_search": false,
+            "tool_calling": true,
+            "context_window": 128000,
+            "max_output_tokens": 8192,
+            "native_compaction": false,
+            "structured_output": false,
+            "native_async_tools": false,
+            "parallel_tool_calls": false,
+            "incompatible_features": []
+          },
+          "price_version": "offline-zero",
+          "input_usd_per_million": "0",
+          "output_usd_per_million": "0",
+          "cache_write_usd_per_million": "0",
+          "cached_input_usd_per_million": "0"
+        },
+        "usage": {
+          "estimated": false,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_input_tokens": 0
+        },
+        "status": "settled",
+        "attempt_id": "c85096ed-8445-45b8-92c9-440e875451b5",
+        "charged_usd": "0",
+        "input_tokens": 10434,
+        "reserved_usd": "0",
+        "output_tokens": 4096
+      }
+    },
+    "repair_rounds": 0
+  },
+  "manifest": {
+    "models": [
+      {
+        "model_id": "scripted",
+        "provider": "fake",
+        "price_basis": "exact",
+        "capabilities": {
+          "tool_search": false,
+          "tool_calling": true,
+          "context_window": 128000,
+          "max_output_tokens": 8192,
+          "native_compaction": false,
+          "structured_output": false,
+          "native_async_tools": false,
+          "parallel_tool_calls": false,
+          "incompatible_features": []
+        },
+        "price_version": "offline-zero",
+        "input_usd_per_million": "0",
+        "output_usd_per_million": "0",
+        "cache_write_usd_per_million": "0",
+        "cached_input_usd_per_million": "0"
+      }
+    ],
+    "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+    "config_id": "demo",
+    "base_commit": "7e58174eb967b3a1797eb524a98177cf0be2ba4c",
+    "config_hash": "1872964b5e3c926720b76a84da33582cdf681be302c7916c4907068af3f5b200",
+    "profile_hash": "749152eb31358b4117f6d00b6fd7b8e1990f64271339b1d8dc0a3b2827a3154b",
+    "prompt_hashes": {
+      "system.txt": "20c5452b8e8ddc9b4ff5f3f517c8d97a17b8db27bf23fb065793f8c385323c0d"
+    },
+    "execution_mode": "offline_scripted",
+    "tool_schema_hash": "4d0861220097de751e5dc03f74449d6843bb024f286dce8468bdc95f2bac79ee",
+    "model_version_note": "Configured IDs are preserved; aliases may change provider-side.",
+    "dependency_versions": {
+      "docker": "7.2.0",
+      "openai": "3.8.0",
+      "pydantic": "2.13.5",
+      "anthropic": "1.4.0",
+      "langgraph": "1.2.11",
+      "sqlalchemy": "2.0.52",
+      "forge-agent": "0.1.0",
+      "tree-sitter": "0.26.0",
+      "tree-sitter-python": "0.25.0",
+      "langgraph-checkpoint-postgres": "3.1.2"
+    },
+    "actual_system_prompt_hash": "26b7a1935840a855c9ad52af7a80595d07ea1c6c1e12ed8a2d1439938adfe76f"
+  },
+  "elapsed_seconds": 8.562,
+  "event_count": 50,
+  "event_types": [
+    "run.created",
+    "message.received",
+    "run.claimed",
+    "stage.changed",
+    "stage.changed",
+    "validation.finished",
+    "message.applied",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "context.built",
+    "model.started",
+    "text.delta",
+    "stage.changed",
+    "tool.planned",
+    "stage.changed",
+    "tool.finished",
+    "stage.changed",
+    "stage.changed",
+    "stage.changed",
+    "validation.finished",
+    "run.finished"
+  ],
+  "tool_call_ids": [
+    "demo-read",
+    "demo-patch",
+    "demo-focused-test",
+    "demo-finish"
+  ],
+  "source_unchanged": true,
+  "submission_idempotent": true,
+  "message_idempotent": true,
+  "watch_disconnected_before_execution": true,
+  "sse_contiguous_after_resume": true,
+  "sse_final_cursor_empty": true,
+  "separate_api_worker_processes": true,
+  "receipts": [
+    {
+      "kind": "baseline_receipt",
+      "status": "error",
+      "exit_code": 1,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 0,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    },
+    {
+      "kind": "baseline_target_receipt",
+      "status": "error",
+      "exit_code": 1,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 0,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    },
+    {
+      "kind": "command_receipt",
+      "status": "ok",
+      "exit_code": 0,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 1,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": false
+      }
+    },
+    {
+      "kind": "validation_receipt",
+      "status": "ok",
+      "exit_code": 0,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 1,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    },
+    {
+      "kind": "target_receipt",
+      "status": "ok",
+      "exit_code": 0,
+      "rootless": true,
+      "image_id": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+      "workspace_revision": 1,
+      "limits": {
+        "memory_bytes": 536870912,
+        "cpu_limit": 1.0,
+        "pid_limit": 128,
+        "network": "none",
+        "read_only": true,
+        "user": "1000:1000",
+        "cap_drop": [
+          "ALL"
+        ],
+        "no_new_privileges": true,
+        "read_only_workspace": true
+      }
+    }
+  ],
+  "patch": "diff --git a/replay.py b/replay.py\n--- a/replay.py\n+++ b/replay.py\n@@ -30,5 +30,6 @@\n         raise ValueError(\"limit must be between 1 and 500\")\n     ordered = sorted(events, key=lambda event: (event.timestamp_ms, event.sequence))\n     if after is not None:\n-        ordered = [event for event in ordered if event.timestamp_ms > after.timestamp_ms]\n+        ordered = [event for event in ordered\n+                   if (event.timestamp_ms, event.sequence) > (after.timestamp_ms, after.sequence)]\n     return ordered[:limit]\n"
+}

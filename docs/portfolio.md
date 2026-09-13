@@ -20,6 +20,10 @@
 
 Independent review 还发现并推动修复了 partial usage 被当最终费用、提前 `os._exit(0)` 被当测试通过、验证阶段修改原测试、工件归属不一致和总运行时间预算未及时停止等问题。面试时可以拿复现测试与修复依据说明设计如何变化，避免只展示一张功能架构图。
 
+## 本次可补充的运行时故事（2026-09-13）
+
+慢 OTLP collector 会使同步 span export 占用 asyncio 线程，连带影响 worker 心跳和取消。为本地与远端建立独立有界 SDK 队列后，用真实 PostgreSQL/rootless Docker 验证 exporter 持续阻塞时续租和命令取消仍完成；另以相同 24 次 HTTP、固定 50ms collector 延迟和 6 对独立进程测量事件循环延迟。独立审阅进一步复现了 SDK 内部日志泄露与队列警告同步阻塞，修复后保留反例测试。取舍是允许可观测数据丢失，保持业务账本权威，并承认关闭不是硬截止时间。详见 [原始证据和测量边界](validation/telemetry-20260913/README.md)。
+
 ## 可使用的英文描述
 
 > Built a Python coding-agent workbench with native OpenAI, Anthropic, and DeepSeek streaming adapters, PostgreSQL-backed execution ledgers, LangGraph recovery, and rootless Docker tool execution.
@@ -27,6 +31,8 @@ Independent review 还发现并推动修复了 partial usage 被当最终费用�
 > Implemented versioned context evidence and independent patch verification; added fault-injection tests for interrupted model streams, persisted-response recovery, partial execution outcomes, and cancellation.
 
 > Evaluated six context/routing configurations across 12 diagnostic repair tasks using 72 live DeepSeek trials, with independent grading, immutable failure records, and a persistent campaign budget ledger.
+
+> Isolated local and OTLP trace export with bounded background queues; verified PostgreSQL lease renewal and Docker command cancellation while a trace exporter remained blocked.
 
 这些描述只陈述已实现并验证的工作。模型结果须带上任务数、配置和一次重复的限制；不要把固定脚本的端到端测试写成“自主解决真实用户任务”，也不要把不同配置混合的 51/72 当作某个产品配置的成功率。
 

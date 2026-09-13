@@ -1,0 +1,78 @@
+{
+  "verified_at": "2026-09-13T19:08:44.837057+00:00",
+  "mode": "local_linux_real_postgresql_rootless_docker_scripted_model_and_loopback_http",
+  "base_commit": "8b923a145a161b95608b95fd38b1d15e2e385618",
+  "environment": {
+    "os": "Linux-7.0.0-29-generic-x86_64-with-glibc2.43",
+    "cpu": "13th Gen Intel(R) Core(TM) i9-13900K",
+    "python": "3.13.15",
+    "postgres_database": "forge_telemetry_refresh_20260913",
+    "docker_host": "unix:///run/user/1000/forge-rootless/docker.sock",
+    "image": "sha256:88ea842ecc6d79db7d22c0cf911ea41b5ebec7c6846298eea1ae7a77dc2c7e15",
+    "dependencies": {
+      "opentelemetry-sdk": "1.44.0",
+      "opentelemetry-exporter-otlp-proto-http": "1.44.0",
+      "fastapi": "0.141.1",
+      "langgraph": "1.2.11",
+      "langgraph-checkpoint-postgres": "3.1.2",
+      "pytest": "9.1.1"
+    },
+    "shared_workstation": true
+  },
+  "checks": {
+    "offline.xml": {
+      "tests": 322,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3,
+      "passed": 319,
+      "sha256": "b8eea14054c5fe537de2da29bf47c18e90fc38db7e62873b9bc1f149045e1a53"
+    },
+    "worker-runtime-final.xml": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "sha256": "d421bb8db56d71117f59aea22d94c404c7bbfa9e9d85383946d667fe2bda943f"
+    },
+    "runtime-regression.xml": {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 22,
+      "sha256": "cb85986f1781b0b69f605dec418d541015befc58fdec9f08ef44502e950f837b"
+    },
+    "independent-review.xml": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 5,
+      "sha256": "92a0f2243074aae01c55b103c1a389aa6ec6cee5da62b76daeea0a2fabcbd1de"
+    },
+    "worker-runtime-environment-failure.xml": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 0,
+      "sha256": "e4de7fee2e106e9e1662f4a34a5c824c602705cf5e8261ede338c3a91682dd75"
+    }
+  },
+  "static_checks": {
+    "ruff": "passed: src scripts tests examples migrations",
+    "mypy": "passed: 58 source files (src plus demo, check_migration, benchmark_telemetry)"
+  },
+  "benchmark_sha256": "1d0d71b43a0a6ef70d797714990f77b29ba4a8f6780f3168aa6ae676d2ba4c88",
+  "benchmark_script_sha256": "06d68cad01d00693d40a1a63e55a4941d6ef5eb5b2d6f1db44356e2c447145c0",
+  "telemetry_source_sha256": "85f9a4727cb10cfdea3c3c9e5dbde7a75a5dde1bf1be5a6127bd94bdb8cc8917",
+  "additional_model_api_calls": 0,
+  "limitations": [
+    "Counts overlap between runs; never sum these test groups.",
+    "Historical failed environment attempt is preserved and excluded from final passing checks.",
+    "No real remote collector, cloud deployment, production traffic, or paid model used in this refresh.",
+    "Asynchronous best-effort shutdown does not forcibly terminate arbitrary Python exporter threads."
+  ]
+}

@@ -50,14 +50,14 @@ The helper needs Docker's standard rootless dependencies (`rootlesskit`,
 `dockerd-rootless.sh`, `newuidmap`/`newgidmap`, configured subordinate IDs, and a
 delegating user service manager). It does not switch Docker's global context.
 Use the printed endpoint in `.env`; on the verified host it was
-`unix:///tmp/forge-rootless-1000/docker.sock`. Do not start a second service with
+`unix:///run/user/1000/forge-rootless/docker.sock`. The default runtime directory is `$XDG_RUNTIME_DIR/forge-rootless` (falling back to `/run/user/$(id -u)/forge-rootless`); substitute your UID. The runtime path must not contain whitespace because of the installed rootless launcher. Do not start a second service with
 the same name when `forge-rootless` is already running. The startup and observed
 capabilities are recorded in [sandbox validation](validation/sandbox.md).
 
 Build the trusted runner image into that daemon before submitting tasks:
 
 ```bash
-export FORGE_DOCKER_HOST=unix:///tmp/forge-rootless-1000/docker.sock
+export FORGE_DOCKER_HOST=unix:///run/user/1000/forge-rootless/docker.sock
 docker --host "$FORGE_DOCKER_HOST" build -f docker/runner.Dockerfile -t forge-runner:dev .
 ```
 

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="10.055" timestamp="2026-09-13T11:54:06.201901-07:00" hostname="postedism-ubuntu-system-selfuse"><testcase classname="tests.integration.test_runtime" name="test_blocked_trace_sink_preserves_heartbeat_and_command_cancellation" time="8.298"><failure message="TimeoutError">repository = &lt;forge.persistence.repository.Repository object at 0x705fbd6401a0&gt;
+tmp_path = PosixPath('/var/tmp/pytest-of-postedism/pytest-9/test_blocked_trace_sink_preser0')
+
+    @pytest.mark.asyncio
+    async def test_blocked_trace_sink_preserves_heartbeat_and_command_cancellation(
+        repository: Repository, tmp_path: Path,
+    ) -&gt; None:
+        """Real PG lease and Docker cancellation while an export thread cannot progress."""
+        import threading
+    
+        from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
+    
+        from forge.telemetry import Telemetry
+    
+        entered, release = threading.Event(), threading.Event()
+    
+        class BlockedSink(SpanExporter):
+            def export(self, spans: Any) -&gt; SpanExportResult:
+                entered.set()
+                assert release.wait(15), "Test did not release the blocked exporter"
+                return SpanExportResult.SUCCESS
+    
+            def shutdown(self) -&gt; None:
+                pass
+    
+        scripts = [turn(ToolCall(call_id="slow", name="run_command", arguments={
+            "argv": ["python", "-c", "import time; print('started',flush=True); time.sleep(12)"],
+            "timeout_seconds": 15}))]
+        run = await new_run(repository, tmp_path, scripts=scripts)
+        assert DATABASE_URL
+        settings = Settings(_env_file=None, database_url=DATABASE_URL, data_dir=tmp_path,
+                            lease_seconds=6, docker_host=os.environ.get("FORGE_TEST_DOCKER_HOST"),
+                            allow_rootful_development=os.environ.get("FORGE_ALLOW_ROOTFUL_TESTS") == "1")
+        operation_id = f"{run['id']}-t0-c0"
+        async with AsyncPostgresSaver.from_conn_string(settings.checkpoint_dsn) as saver:
+            await saver.setup()
+            worker = Worker(settings, repository, saver)
+            await worker.telemetry.aclose()
+            worker.telemetry = Telemetry(tmp_path / "traces.jsonl", remote_exporter=BlockedSink(),
+                                         max_queue_size=32, max_export_batch_size=1, schedule_delay_millis=10)
+            running = asyncio.create_task(worker.once())
+            try:
+                async with asyncio.timeout(8):
+                    while True:
+                        current = await repository.get_run(run["id"])
+                        try:
+                            workspace = worker.workspaces.load(run["id"])
+                            operation = workspace.operation(operation_id)
+                            if entered.is_set() and operation and operation["state"] == "running":
+                                break
+                        except FileNotFoundError:
+                            pass
+&gt;                       await asyncio.sleep(0.025)
+
+tests/integration/test_runtime.py:667: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.025, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay &lt;= 0:
+            await __sleep0()
+            return result
+    
+        if math.isnan(delay):
+            raise ValueError("Invalid delay: NaN (not a number)")
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+&gt;           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/tasks.py:720: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+repository = &lt;forge.persistence.repository.Repository object at 0x705fbd6401a0&gt;
+tmp_path = PosixPath('/var/tmp/pytest-of-postedism/pytest-9/test_blocked_trace_sink_preser0')
+
+    @pytest.mark.asyncio
+    async def test_blocked_trace_sink_preserves_heartbeat_and_command_cancellation(
+        repository: Repository, tmp_path: Path,
+    ) -&gt; None:
+        """Real PG lease and Docker cancellation while an export thread cannot progress."""
+        import threading
+    
+        from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
+    
+        from forge.telemetry import Telemetry
+    
+        entered, release = threading.Event(), threading.Event()
+    
+        class BlockedSink(SpanExporter):
+            def export(self, spans: Any) -&gt; SpanExportResult:
+                entered.set()
+                assert release.wait(15), "Test did not release the blocked exporter"
+                return SpanExportResult.SUCCESS
+    
+            def shutdown(self) -&gt; None:
+                pass
+    
+        scripts = [turn(ToolCall(call_id="slow", name="run_command", arguments={
+            "argv": ["python", "-c", "import time; print('started',flush=True); time.sleep(12)"],
+            "timeout_seconds": 15}))]
+        run = await new_run(repository, tmp_path, scripts=scripts)
+        assert DATABASE_URL
+        settings = Settings(_env_file=None, database_url=DATABASE_URL, data_dir=tmp_path,
+                            lease_seconds=6, docker_host=os.environ.get("FORGE_TEST_DOCKER_HOST"),
+                            allow_rootful_development=os.environ.get("FORGE_ALLOW_ROOTFUL_TESTS") == "1")
+        operation_id = f"{run['id']}-t0-c0"
+        async with AsyncPostgresSaver.from_conn_string(settings.checkpoint_dsn) as saver:
+            await saver.setup()
+            worker = Worker(settings, repository, saver)
+            await worker.telemetry.aclose()
+            worker.telemetry = Telemetry(tmp_path / "traces.jsonl", remote_exporter=BlockedSink(),
+                                         max_queue_size=32, max_export_batch_size=1, schedule_delay_millis=10)
+            running = asyncio.create_task(worker.once())
+            try:
+&gt;               async with asyncio.timeout(8):
+                           ^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_runtime.py:657: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x705fbd60ad40&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Optional[bool]:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+&gt;                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+../../../.local/share/uv/python/cpython-3.13.15-linux-x86_64-gnu/lib/python3.13/asyncio/timeouts.py:117: TimeoutError</failure></testcase></testsuite></testsuites>

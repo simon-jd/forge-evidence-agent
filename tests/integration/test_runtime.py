@@ -613,3 +613,85 @@ async def test_deepseek_incomplete_generation_accounts_usage_without_executing_t
         assert len(attempts) == len(turns) == 1 and not executed
         assert attempts[0].status == turns[0].status == "failed"
         assert attempts[0].payload["usage_final"] is (usage_kind == "complete")
+
+
+@pytest.mark.asyncio
+async def test_blocked_trace_sink_preserves_heartbeat_and_command_cancellation(
+    repository: Repository, tmp_path: Path,
+) -> None:
+    """Real PG lease and Docker cancellation while an export thread cannot progress."""
+    import threading
+
+    from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
+
+    from forge.telemetry import Telemetry
+
+    entered, release = threading.Event(), threading.Event()
+
+    class BlockedSink(SpanExporter):
+        def export(self, spans: Any) -> SpanExportResult:
+            entered.set()
+            assert release.wait(15), "Test did not release the blocked exporter"
+            return SpanExportResult.SUCCESS
+
+        def shutdown(self) -> None:
+            pass
+
+    scripts = [turn(ToolCall(call_id="slow", name="run_command", arguments={
+        "argv": ["python", "-c", "import time; print('started',flush=True); time.sleep(12)"],
+        "timeout_seconds": 15}))]
+    run = await new_run(repository, tmp_path, scripts=scripts)
+    assert DATABASE_URL
+    settings = Settings(_env_file=None, database_url=DATABASE_URL, data_dir=tmp_path,
+                        lease_seconds=6, docker_host=os.environ.get("FORGE_TEST_DOCKER_HOST"),
+                        allow_rootful_development=os.environ.get("FORGE_ALLOW_ROOTFUL_TESTS") == "1")
+    operation_id = f"{run['id']}-t0-c0"
+    async with AsyncPostgresSaver.from_conn_string(settings.checkpoint_dsn) as saver:
+        await saver.setup()
+        worker = Worker(settings, repository, saver)
+        await worker.telemetry.aclose()
+        worker.telemetry = Telemetry(tmp_path / "traces.jsonl", remote_exporter=BlockedSink(),
+                                     max_queue_size=32, max_export_batch_size=1, schedule_delay_millis=10)
+        running = asyncio.create_task(worker.once())
+        try:
+            async with asyncio.timeout(8):
+                while True:
+                    current = await repository.get_run(run["id"])
+                    try:
+                        workspace = worker.workspaces.load(run["id"])
+                        operation = workspace.operation(operation_id)
+                        if entered.is_set() and operation and operation["state"] == "running":
+                            break
+                    except FileNotFoundError:
+                        pass
+                    await asyncio.sleep(0.025)
+            first_expiry, epoch = current["lease_expires_at"], current["lease_epoch"]
+            async with asyncio.timeout(4):
+                while True:
+                    current = await repository.get_run(run["id"])
+                    assert current["status"] == "running" and current["lease_epoch"] == epoch
+                    if current["lease_expires_at"] > first_expiry:
+                        break
+                    await asyncio.sleep(0.025)
+            assert entered.is_set() and not release.is_set()
+            await repository.cancel(run["id"], "test-owner")
+            await asyncio.wait_for(asyncio.shield(running), timeout=5)
+            final = await repository.get_run(run["id"])
+            assert final["status"] == "cancelled"
+            assert not release.is_set()  # Export delivery was not required for cancellation.
+            assert workspace.active_operation() is None
+            async with repository.sessions() as session:
+                tool = await session.get(ToolRow, operation_id)
+                assert tool is not None and tool.result and tool.result["status"] == "cancelled"
+        finally:
+            release.set()
+            if not running.done():
+                running.cancel()
+                try:
+                    await running
+                except asyncio.CancelledError:
+                    pass
+            await worker.telemetry.aclose()
+    records = [json.loads(line) for line in (tmp_path / "traces.jsonl").read_text().splitlines()]
+    root_span, = [row for row in records if row["name"] == "run"]
+    assert any(row["parent_span_id"] == root_span["span_id"] for row in records)

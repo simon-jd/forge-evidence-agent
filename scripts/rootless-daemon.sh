@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 forge_project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-forge_runtime_dir="${FORGE_ROOTLESS_RUNTIME_DIR:-/tmp/forge-rootless-$(id -u)}"
+forge_runtime_dir="${FORGE_ROOTLESS_RUNTIME_DIR:-${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/forge-rootless}"
+# dockerd-rootless.sh expands its internal state-dir argument without quoting.
+if [[ "$forge_runtime_dir" =~ [[:space:]] ]]; then
+  printf 'Forge rootless runtime directory must not contain whitespace.\n' >&2
+  exit 2
+fi
 mkdir -p -- "$forge_runtime_dir"
 chmod 700 -- "$forge_runtime_dir"
 systemd-run --user --unit=forge-rootless --collect --property=Delegate=yes \

@@ -33,7 +33,15 @@ class Worker:
         self.workspaces = WorkspaceManager(settings.data_dir / "workspaces")
         self.artifacts = LocalArtifactStore(settings.data_dir / "artifacts")
         self.executor = DockerExecutor(settings.docker_host, settings.allow_rootful_development)
-        self.telemetry = Telemetry(settings.data_dir / "traces.jsonl", settings.otlp_endpoint)
+        self.telemetry = Telemetry(
+            settings.data_dir / "traces.jsonl", settings.otlp_endpoint,
+            max_queue_size=settings.telemetry_max_queue_size,
+            max_export_batch_size=settings.telemetry_max_export_batch_size,
+            schedule_delay_millis=settings.telemetry_schedule_delay_millis,
+            export_timeout_seconds=settings.telemetry_export_timeout_seconds,
+            max_attributes=settings.telemetry_max_attributes,
+            max_attribute_length=settings.telemetry_max_attribute_length,
+        )
 
     async def once(self) -> bool:
         run = await self.repository.claim(self.worker_id, self.settings.lease_seconds)
@@ -140,7 +148,8 @@ async def serve(settings: Settings, *, once: bool = False) -> None:
                     if not claimed:
                         await asyncio.sleep(settings.worker_poll_seconds)
             finally:
-                worker.telemetry.close()
+                await worker.telemetry.aclose()
+                log_event("telemetry.closed", **worker.telemetry.diagnostics())
     finally:
         await repository.close()
 

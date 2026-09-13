@@ -27,6 +27,9 @@ flowchart LR
     T --> D[Rootless Docker jobs]
     D --> A[Receipts and artifacts]
     W --> V[Clean read-only verifier]
+    W --> O[Independent bounded trace queues]
+    O --> L[Local JSONL]
+    O --> R[OTLP HTTP]
     E[Evaluation worker] --> API
     E --> G[Private independent grader]
 ```
@@ -37,7 +40,7 @@ flowchart LR
 - Rootless Docker, non-root task users, no network, read-only root filesystem, CPU/memory/PID limits.
 - Ripgrep and tree-sitter Python symbols; structured compaction and bounded rule routing.
 - Decimal reservations for every model attempt; partial usage retains budget occupancy.
-- OpenTelemetry spans, JSONL traces, JSONL/CSV/HTML evaluation output.
+- OpenTelemetry spans with independent bounded JSONL/OTLP export; JSONL/CSV/HTML evaluation output.
 
 The product uses one coding agent per task. Independent planning, development and review agents were used to build it. See [design](docs/planning/architecture.md), [decisions](docs/adr/0001-single-agent-and-evidence.md) and [independent review](docs/reviews/independent-review.md).
 
@@ -66,6 +69,21 @@ uv run forge-worker
 Configure actual model IDs, capabilities and versioned prices in `configs/runs/`. Example live configurations intentionally require those values. Provider keys may be supplied through the worker's environment or local `.env`; they are excluded from run manifests and task containers. The server token is separate from provider credentials.
 
 The CLI exposes `run`, `watch`, `approve`, `cancel`, `resume`, `diff` and `eval` through the public HTTP API. See [API and CLI reference](docs/api.md). A disconnected CLI does not stop a worker.
+
+## Worker observability
+
+Local JSONL and optional OTLP HTTP tracing use separate bounded SDK queues, so one exporter can fail or wait while the other continues. Each queue defaults to 256 spans with batches of up to 32. Span buffering is best effort: saturation can discard spans, and the PostgreSQL action/usage ledger remains the authority for recovery. [The environment example](.env.example) exposes queue, batch, scheduling, attribute and OTLP request-timeout settings.
+
+To enable SDK queue-size and dropped-span measurements, export this flag in the worker's launching shell:
+
+```bash
+export OTEL_PYTHON_SDK_INTERNAL_METRICS_ENABLED=true
+uv run forge-worker
+```
+
+Putting this SDK flag only in `.env` does not populate the process environment. Without it, queue/drop measurements are `null`, while Forge still counts export successes, failures and initialization failures. A successful exporter return is not proof of durable, exactly-once collector receipt. Graceful worker exit logs a `telemetry.closed` diagnostic snapshot after awaiting background shutdown. Shutdown is best effort; it does not forcibly terminate an arbitrary blocked exporter thread or promise a process-wide deadline.
+
+Trace attributes are allowlisted and bounded; exception messages and stack traces are not automatically recorded. Two narrowly scoped, process-wide SDK logger filters sanitize OTLP diagnostics and suppress synchronous span queue warnings, whose losses are observable through the opt-in SDK metrics. Other application loggers are unchanged. [ADR 0007](docs/adr/0007-isolate-telemetry-export.md) records the filter boundary, failure behavior and decision to keep the tested dependency versions. See the dated [market and ecosystem review](docs/research/market-2026-09-13.md) and [validation record](docs/validation/telemetry-20260913/README.md) for the motivation, actual experiments and their limits.
 
 ## Validation and experiments
 
