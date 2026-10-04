@@ -1,8 +1,11 @@
 {
   "date": "2026-10-04",
   "scope": "Current local regression, separate from the experience-bank cloud measurements",
-  "passed": 325,
-  "skipped": 3,
+  "passed": 326,
+  "skipped": 21,
   "failed": 0,
-  "cloud_results": "experience-bank-results.json"
+  "cloud_results": "experience-bank-results.json",
+  "deselected": 19,
+  "command": "PYTHONPATH=src python -m pytest -q -m 'not live and not postgres'",
+  "scope_note": "Independent-review run includes the offline suite plus integration collection: 18 additional environment-gated integration items are skipped alongside 3 existing container review skips. Paid live and PostgreSQL-marked items are deselected. No skipped item counts as a pass."
 }

@@ -42,3 +42,12 @@ def test_duplicate_and_mismatched_seed_are_not_counted_as_independent_trials():
 def test_plan_rejects_duplicate_task_ids():
     with pytest.raises(ValueError):
         imbalanced_plan(["T1"] * 12)
+
+
+def test_not_run_placeholder_is_not_a_common_observation():
+    rows = trials()
+    rows[0].status = "not_run"
+    comparison = common_first_seed(rows)
+    assert comparison["trial_count"] == 54
+    assert "T1" not in comparison["tasks"]
+    assert set(comparison["allocation"].values()) == {9}

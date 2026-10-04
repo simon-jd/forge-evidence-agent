@@ -30,7 +30,9 @@ def common_first_seed(trials: list[EvalTrial]) -> dict:
     if len({trial.trial_id for trial in trials}) != len(trials):
         raise ValueError("Duplicate trial_id")
     for trial in trials:
-        if trial.repeat != 0:
+        # A planned but unexecuted cell is missing evidence, not a failed run.
+        # Remove that task/seed from the common intersection for every condition.
+        if trial.repeat != 0 or trial.status == "not_run":
             continue
         key = (trial.condition, trial.task_id, trial.seed)
         if key in indexed:
