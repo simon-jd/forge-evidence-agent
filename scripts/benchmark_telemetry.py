@@ -79,8 +79,8 @@ def child(args: argparse.Namespace) -> dict[str, Any]:
 
                 async def ticker() -> None:
                     while not done:
-                        deadline = time.perf_counter() + 0.005
-                        await asyncio.sleep(0.005)
+                        deadline = time.perf_counter() + args.ticker_seconds
+                        await asyncio.sleep(args.ticker_seconds)
                         lags.append(max(0.0, time.perf_counter() - deadline))
 
                 ticking = asyncio.create_task(ticker())
@@ -126,11 +126,14 @@ def main() -> None:
     parser.add_argument("--baseline-commit", default="8b923a145a161b95608b95fd38b1d15e2e385618")
     parser.add_argument("--pairs", type=int, default=6)
     parser.add_argument("--spans", type=int, default=24)
-    parser.add_argument("--delay-seconds", type=float, default=0.05)
+    parser.add_argument("--delay-seconds", type=float, default=0.045)
+    parser.add_argument("--ticker-seconds", type=float, default=0.01)
     parser.add_argument("--variant", choices=["baseline", "candidate"], help=argparse.SUPPRESS)
     args = parser.parse_args()
     if not 1 <= args.pairs <= 20 or not 3 <= args.spans <= 48 or not 0.001 <= args.delay_seconds <= 0.2:
         parser.error("Use 1–20 pairs, 3–48 spans and 0.001–0.2 seconds collector delay")
+    if not 0.001 <= args.ticker_seconds <= 0.05:
+        parser.error("Use 0.001–0.05 seconds ticker interval")
     if args.variant:
         print(json.dumps(child(args)))
         return
@@ -146,6 +149,7 @@ def main() -> None:
                 sys.executable, str(Path(__file__).resolve()), "--variant", variant,
                 "--baseline-commit", args.baseline_commit, "--spans", str(args.spans),
                 "--delay-seconds", str(args.delay_seconds),
+                "--ticker-seconds", str(args.ticker_seconds),
             ], cwd=ROOT, text=True, timeout=30)
             results.append({"pair": pair, "order": order.index(variant), **json.loads(output)})
     versions = {package: importlib.metadata.version(package) for package in
@@ -161,12 +165,13 @@ def main() -> None:
         "schema_version": 1, "mode": "local_cpu_real_loopback_http_fault_fixture",
         "baseline_commit": args.baseline_commit, "pairs": args.pairs, "seed": 20260913,
         "collector_delay_seconds_per_request": args.delay_seconds, "batch_size_both_variants": 1,
+        "ticker_interval_seconds": args.ticker_seconds,
         "candidate_queue_size_per_sink": 64, "spans_per_run": args.spans,
         "environment": {"os": platform.platform(), "python": platform.python_version(),
                         "cpu": next((line.split(":", 1)[1].strip() for line in Path("/proc/cpuinfo").read_text().splitlines()
                                      if line.startswith("model name")), "unknown"), "dependencies": versions},
         "summary_median_across_runs": summary, "runs": results,
-        "limitations": ["Injected 50ms collector delay by default, not production traffic or model latency.",
+        "limitations": ["Injected 45ms collector delay by default, not production traffic or model latency.",
                         "Producer responsiveness is measured separately from draining the export backlog.",
                         "Same request count in both variants; batching throughput gains are not claimed.",
                         "Shared local workstation; scheduling noise and other workloads can affect timing."],

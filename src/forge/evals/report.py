@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from forge.evals.contracts import EvalTrial
+from forge.evals.diagnostic_plan import common_first_seed
 
 
 def _percentile(values: list[float], probability: float) -> float | None:
@@ -82,6 +83,7 @@ def summarize(trials: list[EvalTrial]) -> dict[str, Any]:
             comparisons.append(paired_comparison(trials, left, right))
     return {
         "conditions": conditions, "paired_comparisons": comparisons,
+        "common_first_seed": common_first_seed(trials),
         "interpretation": [
             "Repeats are observations of the same tasks, not independent tasks or best-of-N success.",
             "Infrastructure failures are separate; both all-started and usable success denominators are shown.",

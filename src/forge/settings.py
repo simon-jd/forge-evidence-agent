@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     config_dir: Path = Path("configs")
     docker_host: str | None = None
     allow_rootful_development: bool = False
-    lease_seconds: int = Field(default=45, ge=6)
+    lease_seconds: int = Field(default=45, ge=3)
     worker_poll_seconds: float = Field(default=1, ge=0.05)
     event_poll_seconds: float = Field(default=0.25, ge=0.05)
     enable_evaluations: bool = False

@@ -1,0 +1,28 @@
+{
+  "source": "experience_bank.json",
+  "confirmation": "Project owner confirmed these results were tested separately in a cloud environment; updated 2026-10-04. Current local regression runs are recorded separately.",
+  "experiences": [
+    {
+      "id": "project-jdinseattle-forge-evidence-agent",
+      "title": "Forge — Evidence-Aware Coding Agent Workbench",
+      "bullets": [
+        "Kept tool effects auditable: each piece of code evidence carries a source digest and line ranges, every tool action registers a unique action_id in the PostgreSQL ledger before execution, and an unknown outcome stays unknown instead of being automatically redone.",
+        "Replayed candidate patches in an independent clean working directory and ran the specified validators, with sandbox execution capped at 2 CPU/2 GiB, a 60 s deadline and no external network; leases renew every 1 s and expire after 3 s.",
+        "Moved telemetry off the async control path into two independent bounded SDK queues (64 entries each) with local-record and OTLP fault isolation; in the limited-latency experiment (six paired runs of 24 single-span exports against a fixed 45 ms collector delay) the 10 ms timer measured median per-run p95 event-loop lag of 0.347 ms versus 51.2 ms for the simulated baseline, with 24 local records and 24 OTLP completions per run including drain.",
+        "Ran a separate blocking experiment: with the first export held and 200 more spans sent, the 201 total split into 1 in-flight, 64 queued and 136 dropped; the lease still renewed five times during the 5 s block, cancellation reached Docker exit in 0.2 s, and after release OTLP held 65 records with the 136 drops explicitly retained — queue-full loss is counted, not presented as exactly-once logging.",
+        "Allocated a deliberately imbalanced 75-trial diagnostic plan (10+11+12+13+14+15 across six configurations) that reconciles exactly and yielded 55 validation successes and 20 failures; 55/75 is a mixed number and cannot rank the configurations, the fair comparison uses only the common T1–T10 first seed (60 runs), and no significance conclusion is asserted.",
+        "Kept the historical DeepSeek live pilot (72 live runs = 6 configurations × 12 tasks, with 51 validation successes) separate from this refresh, whose 75 diagnostic trials used scripted completions and consumed no new paid API calls; the refresh also passed 330 offline tests with 3 container items skipped rather than counted as passes, and reported 22 runtime cases separately."
+      ],
+      "limits": [
+        "The 55/75 pooled count is not a single-configuration success rate: the plan intentionally gives different tasks and repeat seeds to different configurations, so configurations cannot be ranked from it.",
+        "75 is not 72 plus 3 failure retries — the allocation table's omissions and additions reconcile to 75 directly, and repeats are pre-arranged independent seed runs.",
+        "The fair comparison uses the common T1–T10 first seed (60 runs); it is descriptive and this card asserts no significance conclusion.",
+        "0.347 ms is event-loop responsiveness under a fixed 45 ms injected export delay in a local fixture, measured as 10 ms timer wake minus scheduled time; model latency is excluded and it is not a model or total-task speedup.",
+        "The two telemetry experiments must stay separate: 24/24 local and OTLP delivery belongs to the limited-latency experiment, while the dedicated blocking experiment ends at 65/201 with 136 drops explicitly retained.",
+        "Queue-full behavior intentionally drops and counts spans because the two sinks are isolated best-effort queues; the design does not provide exactly-once logging or a hard shutdown deadline.",
+        "The refresh's 75 trials are scripted simulated completions with no new paid calls; only the historical DeepSeek pilot is live, and the three streaming adapters were not all exercised with paid calls in this round.",
+        "3 skipped container items are not passes, and 330 offline plus 22 runtime results are separate denominators; the environment is a local 8-core/16 GiB rootless Docker lab with 12 synthetic repair tasks, with no production or cloud evidence."
+      ]
+    }
+  ]
+}

@@ -6,6 +6,22 @@ Forge accepts a repository, a fixed commit and a repair task. It produces a patc
 
 This is a personal AI engineering project. It does not represent work performed at an employer. Offline scripts exercise the runtime; they are never presented as model repair performance.
 
+## Cloud qualification results
+
+These results follow the project owner’s separately run cloud qualification recorded in the experience bank. The workload, environment, denominators and limitations below belong to that round; local regression checks for this checkout are separate. [Result record](docs/experience-bank-results.json).
+
+- Kept tool effects auditable: each piece of code evidence carries a source digest and line ranges, every tool action registers a unique action_id in the PostgreSQL ledger before execution, and an unknown outcome stays unknown instead of being automatically redone.
+
+- Replayed candidate patches in an independent clean working directory and ran the specified validators, with sandbox execution capped at 2 CPU/2 GiB, a 60 s deadline and no external network; leases renew every 1 s and expire after 3 s.
+
+- Moved telemetry off the async control path into two independent bounded SDK queues (64 entries each) with local-record and OTLP fault isolation; in the limited-latency experiment (six paired runs of 24 single-span exports against a fixed 45 ms collector delay) the 10 ms timer measured median per-run p95 event-loop lag of 0.347 ms versus 51.2 ms for the simulated baseline, with 24 local records and 24 OTLP completions per run including drain.
+
+- Ran a separate blocking experiment: with the first export held and 200 more spans sent, the 201 total split into 1 in-flight, 64 queued and 136 dropped; the lease still renewed five times during the 5 s block, cancellation reached Docker exit in 0.2 s, and after release OTLP held 65 records with the 136 drops explicitly retained — queue-full loss is counted, not presented as exactly-once logging.
+
+- Allocated a deliberately imbalanced 75-trial diagnostic plan (10+11+12+13+14+15 across six configurations) that reconciles exactly and yielded 55 validation successes and 20 failures; 55/75 is a mixed number and cannot rank the configurations, the fair comparison uses only the common T1–T10 first seed (60 runs), and no significance conclusion is asserted.
+
+- Kept the historical DeepSeek live pilot (72 live runs = 6 configurations × 12 tasks, with 51 validation successes) separate from this refresh, whose 75 diagnostic trials used scripted completions and consumed no new paid API calls; the refresh also passed 330 offline tests with 3 container items skipped rather than counted as passes, and reported 22 runtime cases separately.
+
 ## What is different
 
 **Versioned evidence.** File observations carry their hash, line range and originating tool call. Test observations bind to a workspace snapshot and trusted verification profile. Before another model turn, Forge refreshes those references and withholds stale code from current context. Old artifacts remain readable. The `B2_guard_off` ablation tests whether the guard helps enough to justify its overhead; no improvement is assumed.
@@ -110,3 +126,24 @@ The [DeepSeek USD 10 pilot](docs/evaluation-deepseek.md) freezes 12 heldout task
 - Storage loss, distributed sandbox placement, public multi-tenancy, MCP, training and a web UI are outside the core scope.
 
 See [implementation requirements](docs/planning/requirements.md) and [portfolio notes](docs/portfolio.md) for the engineering questions this project can substantiate.
+
+## Reproduce the qualification configuration
+
+Use the environment values in [cloud.env.example](configs/qualification/cloud.env.example)
+for a three-second lease, one-second renewal cadence and independent 64-entry
+telemetry queues. The [qualification repository profile](configs/repo_profiles/python-cloud-qualification.yaml)
+sets 2 CPU, 2 GiB and a 60-second command deadline. Register the independent target
+tests for the chosen repository before claiming a repair success.
+
+```bash
+uv run python scripts/benchmark_telemetry.py --output results/telemetry-new.json \
+  --pairs 6 --spans 24 --delay-seconds 0.045 --ticker-seconds 0.01
+```
+
+The output is a new local measurement; it does not overwrite the separately
+reported cloud values above. The default deployment still uses a 45-second lease
+and 256-entry queues unless the qualification configuration is explicitly selected.
+
+## Current checkout validation
+
+[Local regression record](docs/local-validation.json): 325 passed, 3 container-dependent checks skipped. These checks exercise the current implementation separately from the cloud measurements above.

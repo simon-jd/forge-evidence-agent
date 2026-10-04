@@ -34,3 +34,22 @@ def test_only_supported_test_runners_receive_completion_probes() -> None:
         assert framework in {"pytest", "unittest"} and instrumented[:3] == ["python", "-I", "-c"]
     argv = ["python", "custom_acceptance.py"]
     assert instrument(argv, "nonce") == (argv, None)
+
+
+def test_cloud_qualification_profile_has_one_second_heartbeat() -> None:
+    settings = Settings(_env_file=Path("configs/qualification/cloud.env.example"))
+    assert settings.lease_seconds / 3 == 1
+    assert settings.telemetry_max_queue_size == 64
+    assert settings.telemetry_max_export_batch_size == 1
+
+
+def test_cloud_qualification_sandbox_limits() -> None:
+    import yaml
+
+    from forge.domain.types import RepoProfile
+
+    profile = RepoProfile.model_validate(yaml.safe_load(
+        Path("configs/repo_profiles/python-cloud-qualification.yaml").read_text()))
+    assert profile.cpu_limit == 2
+    assert profile.memory_bytes == 2 * 1024**3
+    assert profile.command_timeout_seconds == 60
